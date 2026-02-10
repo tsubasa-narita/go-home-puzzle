@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <meta name="description" content="だ〜れだ？パズルラリー - お子様が帰りたくなる楽しいパズルアプリ" />
   <title>だ〜れだ？パズルラリー</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap"
+    rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#FF9800" />
 </head>
+
 <body>
   <div id="app">
     <!-- Header -->
@@ -45,7 +48,7 @@
         <span class="step-label">くつをはく</span>
       </button>
       <button id="step-move" class="step-btn locked" data-step="1" disabled>
-        <span class="step-icon">🚲</span>
+        <span class="step-icon">👶🏻</span>
         <span class="step-label">いどうする</span>
       </button>
       <button id="step-home" class="step-btn locked" data-step="2" disabled>
@@ -69,12 +72,18 @@
       <div class="modal-backdrop"></div>
       <div class="modal-content">
         <h2>せってい</h2>
+        <p class="setting-note">📅 まいにち じどうで えが かわるよ！</p>
         <div class="setting-item">
           <label>🔊 おと</label>
           <label class="toggle">
             <input type="checkbox" id="sound-toggle" checked />
             <span class="toggle-slider"></span>
           </label>
+        </div>
+        <div class="setting-section">
+          <label class="setting-section-label">🖼️ えを かえる</label>
+          <p class="setting-section-note">すきな え を えらんでね</p>
+          <div id="image-picker" class="image-picker"></div>
         </div>
         <div class="setting-item">
           <label>🔄 リセット</label>
@@ -89,4 +98,5 @@
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>
+
 </html>

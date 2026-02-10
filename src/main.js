@@ -2,7 +2,7 @@
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
 import './style.css';
-import { getTodayPuzzle, saveProgress, loadProgress, resetProgress } from './puzzleData.js';
+import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress } from './puzzleData.js';
 import { playStepSound, playGoalSound, startCelebration, animateButtonPress } from './effects.js';
 
 // ===========================================
@@ -56,13 +56,22 @@ const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 // Initialization
 // ===========================================
 function init() {
-  currentPuzzle = getTodayPuzzle();
+  // Check for manually selected puzzle
+  const override = localStorage.getItem('puzzle-override');
+  if (override) {
+    currentPuzzle = PUZZLES.find(p => p.id === override) || getTodayPuzzle();
+  } else {
+    currentPuzzle = getTodayPuzzle();
+  }
 
   // Load saved progress
   const saved = loadProgress();
-  if (saved) {
+  if (saved && saved.puzzleId === currentPuzzle.id) {
     currentStep = saved.step;
   }
+
+  // Build image picker
+  buildImagePicker();
 
   // Load the puzzle image
   loadPuzzleImage();
@@ -89,6 +98,17 @@ function loadPuzzleImage() {
     ctx.fillText('🖼️ がぞう よみこみちゅう...', canvas.width / 2, canvas.height / 2);
   };
   puzzleImage.src = currentPuzzle.image;
+}
+
+/**
+ * 進捗保存（パズルIDも含む）
+ */
+function saveProgressWithId(step) {
+  saveProgress(step);
+  // Also save puzzle ID to match on reload
+  const today = new Date().toISOString().split('T')[0];
+  const data = { date: today, step, puzzleId: currentPuzzle.id };
+  localStorage.setItem('puzzle-progress', JSON.stringify(data));
 }
 
 function setupCanvas() {
@@ -243,7 +263,7 @@ function drawImageCover(size) {
 // ===========================================
 // UI Update
 // ===========================================
-function updateUI() {
+function updateUI(skipAnswerOverlay = false) {
   // Update step buttons
   stepButtons.forEach((btn, i) => {
     btn.classList.remove('active', 'completed', 'locked');
@@ -267,8 +287,8 @@ function updateUI() {
     hintText.classList.remove('visible');
   }
 
-  // Update answer overlay
-  if (currentStep >= 2) {
+  // Update answer overlay (skip on fresh goal to show full image first)
+  if (currentStep >= 2 && !skipAnswerOverlay) {
     answerName.textContent = currentPuzzle.name;
     answerOverlay.classList.remove('hidden');
     answerOverlay.classList.add('show');
@@ -283,6 +303,9 @@ function updateUI() {
   } else {
     messageText.innerHTML = 'だ〜れだ？<br>くつをはいてみてみよう！✨';
   }
+
+  // Update image picker selection
+  updateImagePickerSelection();
 }
 
 // ===========================================
@@ -292,7 +315,7 @@ function completeStep(stepIndex) {
   if (stepIndex !== currentStep + 1) return;
 
   currentStep = stepIndex;
-  saveProgress(currentStep);
+  saveProgressWithId(currentStep);
 
   // Animate the button
   animateButtonPress(stepButtons[stepIndex]);
@@ -307,17 +330,23 @@ function completeStep(stepIndex) {
   // Re-render with transition
   renderPuzzle();
 
-  // Update UI after a brief delay for smoother feel
-  setTimeout(() => {
-    updateUI();
-
-    // Show celebration on final step
-    if (stepIndex === 2) {
-      setTimeout(() => {
-        startCelebration();
-      }, 300);
-    }
-  }, 100);
+  if (stepIndex === 2) {
+    // Final step: show full image for 2 seconds before answer overlay
+    updateUI(true); // skip answer overlay
+    setTimeout(() => {
+      startCelebration();
+    }, 800);
+    setTimeout(() => {
+      answerName.textContent = currentPuzzle.name;
+      answerOverlay.classList.remove('hidden');
+      answerOverlay.classList.add('show');
+    }, 2000);
+  } else {
+    // Normal step
+    setTimeout(() => {
+      updateUI();
+    }, 100);
+  }
 }
 
 // ===========================================
@@ -347,9 +376,10 @@ function setupEventListeners() {
   // Reset
   resetBtn.addEventListener('click', () => {
     resetProgress();
+    localStorage.removeItem('puzzle-override');
     currentStep = -1;
-    renderPuzzle();
-    updateUI();
+    currentPuzzle = getTodayPuzzle();
+    loadPuzzleImage();
     settingsModal.classList.add('hidden');
   });
 
@@ -361,6 +391,60 @@ function setupEventListeners() {
       setupCanvas();
       renderPuzzle();
     }, 200);
+  });
+}
+
+// ===========================================
+// Image Picker
+// ===========================================
+function buildImagePicker() {
+  const picker = document.getElementById('image-picker');
+  if (!picker) return;
+  picker.innerHTML = '';
+
+  PUZZLES.forEach((puzzle) => {
+    const btn = document.createElement('button');
+    btn.className = 'image-picker-item';
+    btn.dataset.puzzleId = puzzle.id;
+    if (puzzle.id === currentPuzzle.id) {
+      btn.classList.add('selected');
+    }
+
+    const img = document.createElement('img');
+    img.src = puzzle.image;
+    img.alt = puzzle.name;
+
+    const label = document.createElement('span');
+    label.textContent = puzzle.name;
+
+    btn.appendChild(img);
+    btn.appendChild(label);
+
+    btn.addEventListener('click', () => {
+      switchPuzzle(puzzle.id);
+    });
+
+    picker.appendChild(btn);
+  });
+}
+
+function switchPuzzle(puzzleId) {
+  const newPuzzle = PUZZLES.find(p => p.id === puzzleId);
+  if (!newPuzzle || newPuzzle.id === currentPuzzle.id) return;
+
+  // Save override and reset progress
+  localStorage.setItem('puzzle-override', puzzleId);
+  resetProgress();
+  currentStep = -1;
+  currentPuzzle = newPuzzle;
+  loadPuzzleImage();
+  settingsModal.classList.add('hidden');
+}
+
+function updateImagePickerSelection() {
+  const items = document.querySelectorAll('.image-picker-item');
+  items.forEach(item => {
+    item.classList.toggle('selected', item.dataset.puzzleId === currentPuzzle.id);
   });
 }
 

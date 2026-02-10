@@ -395,22 +395,95 @@ body {
   backdrop-filter: blur(4px);
 }
 
+.modal-content h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-sm);
+}
+
 .modal-content {
   position: relative;
   background: var(--color-card-bg);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
-  max-width: 320px;
+  max-width: 340px;
   width: 90%;
   box-shadow: var(--shadow-lg);
   text-align: center;
+  max-height: 85dvh;
+  overflow-y: auto;
 }
 
-.modal-content h2 {
-  font-size: 1.4rem;
-  font-weight: 900;
+.setting-note {
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--color-primary-dark);
-  margin-bottom: var(--space-lg);
+  background: var(--color-primary-light);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.setting-section {
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-primary-light);
+}
+
+.setting-section-label {
+  font-weight: 700;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+.setting-section-note {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-sm);
+}
+
+.image-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+}
+
+.image-picker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-xs);
+  border: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  font-family: var(--font-family);
+}
+
+.image-picker-item:hover {
+  border-color: var(--color-primary-light);
+  background: var(--color-primary-light);
+}
+
+.image-picker-item.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.image-picker-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.image-picker-item span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
 .setting-item {
