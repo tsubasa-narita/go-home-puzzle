@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="description" content="だ〜れだ？パズルラリー - お子様が帰りたくなる楽しいパズルアプリ" />
+  <title>だ〜れだ？パズルラリー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#FF9800" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">
+        <span class="title-emoji">🔍</span>
+        だ〜れだ？
+        <span class="title-emoji">🔍</span>
+      </h1>
+      <p class="app-subtitle">パズルラリー</p>
+    </header>
+
+    <!-- Puzzle Area -->
+    <main class="puzzle-area">
+      <div class="puzzle-frame">
+        <canvas id="puzzle-canvas"></canvas>
+        <div id="hint-text" class="hint-text"></div>
+        <div id="answer-overlay" class="answer-overlay hidden">
+          <div class="answer-content">
+            <p class="answer-label">せいかい！</p>
+            <p id="answer-name" class="answer-name"></p>
+            <p class="answer-sub">でした〜！おかえり！🎉</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Steps -->
+    <nav class="steps-bar">
+      <button id="step-shoes" class="step-btn" data-step="0">
+        <span class="step-icon">👟</span>
+        <span class="step-label">くつをはく</span>
+      </button>
+      <button id="step-move" class="step-btn locked" data-step="1" disabled>
+        <span class="step-icon">🚲</span>
+        <span class="step-label">いどうする</span>
+      </button>
+      <button id="step-home" class="step-btn locked" data-step="2" disabled>
+        <span class="step-icon">🏠</span>
+        <span class="step-label">おうち</span>
+      </button>
+    </nav>
+
+    <!-- Message Area -->
+    <div id="message-area" class="message-area">
+      <p id="message-text" class="message-text">
+        だ〜れだ？<br>くつをはいてみてみよう！✨
+      </p>
+    </div>
+
+    <!-- Settings -->
+    <button id="settings-btn" class="settings-btn" aria-label="設定">⚙️</button>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <h2>せってい</h2>
+        <div class="setting-item">
+          <label>🔊 おと</label>
+          <label class="toggle">
+            <input type="checkbox" id="sound-toggle" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <label>🔄 リセット</label>
+          <button id="reset-btn" class="reset-btn">きょうのパズルをリセット</button>
+        </div>
+        <button class="modal-close" id="close-settings">とじる</button>
+      </div>
+    </div>
+
+    <!-- Particle canvas for celebration -->
+    <canvas id="particle-canvas" class="particle-canvas"></canvas>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

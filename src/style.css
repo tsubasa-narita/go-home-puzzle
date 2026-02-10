@@ -1,0 +1,599 @@
+/* ===========================================
+   だ〜れだ？パズルラリー - Design System
+   =========================================== */
+
+:root {
+  /* Color Palette - Warm & Playful */
+  --color-bg: #FFF8E1;
+  --color-bg-gradient: linear-gradient(135deg, #FFF8E1 0%, #FFE0B2 50%, #FFCC80 100%);
+  --color-primary: #FF9800;
+  --color-primary-dark: #F57C00;
+  --color-primary-light: #FFE0B2;
+  --color-accent: #FF5722;
+  --color-success: #4CAF50;
+  --color-success-light: #C8E6C9;
+  --color-text: #3E2723;
+  --color-text-light: #795548;
+  --color-white: #FFFFFF;
+  --color-shadow: rgba(0, 0, 0, 0.15);
+  --color-card-bg: #FFFFFF;
+  --color-locked: #BDBDBD;
+
+  /* Typography */
+  --font-family: 'Zen Maru Gothic', 'Hiragino Kaku Gothic Pro', sans-serif;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-round: 50%;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 20px rgba(255, 152, 0, 0.4);
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--color-bg-gradient);
+  color: var(--color-text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: var(--space-md);
+  padding-bottom: var(--space-2xl);
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ===========================================
+   Header
+   =========================================== */
+.app-header {
+  text-align: center;
+  padding: var(--space-md) 0;
+  animation: slideDown 0.6s ease-out;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--color-accent);
+  text-shadow: 2px 2px 0 var(--color-primary-light);
+  letter-spacing: 0.05em;
+}
+
+.title-emoji {
+  display: inline-block;
+  animation: bounce 2s ease infinite;
+}
+
+.title-emoji:last-child {
+  animation-delay: 0.3s;
+}
+
+.app-subtitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-top: var(--space-xs);
+  letter-spacing: 0.2em;
+}
+
+/* ===========================================
+   Puzzle Area
+   =========================================== */
+.puzzle-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-md) 0;
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.puzzle-frame {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 4px solid var(--color-primary);
+}
+
+#puzzle-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hint-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  color: var(--color-white);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.hint-text.visible {
+  opacity: 1;
+}
+
+/* Answer Overlay */
+.answer-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+
+.answer-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.answer-overlay.show {
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.answer-content {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.answer-label {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--color-accent);
+  text-shadow: 2px 2px 0 var(--color-primary-light);
+  margin-bottom: var(--space-sm);
+  animation: pulse 0.8s ease infinite;
+}
+
+.answer-name {
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  text-shadow: 3px 3px 0 var(--color-primary-light);
+  margin-bottom: var(--space-sm);
+  animation: rainbow 3s linear infinite;
+}
+
+.answer-sub {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ===========================================
+   Steps Bar
+   =========================================== */
+.steps-bar {
+  display: flex;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-md) 0;
+  animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+.step-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-sm);
+  background: var(--color-card-bg);
+  border: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: var(--font-family);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.step-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.step-btn > * {
+  position: relative;
+  z-index: 1;
+}
+
+.step-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.step-btn:not(:disabled):active {
+  transform: translateY(0) scale(0.95);
+}
+
+.step-btn.locked {
+  border-color: var(--color-locked);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.step-btn.active {
+  border-color: var(--color-primary);
+  animation: glowPulse 2s ease infinite;
+}
+
+.step-btn.completed {
+  border-color: var(--color-success);
+  background: var(--color-success-light);
+}
+
+.step-btn.completed::before {
+  background: var(--color-success);
+  transform: scaleY(0);
+}
+
+.step-btn.completed .step-icon::after {
+  content: '✓';
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  font-size: 1rem;
+  color: var(--color-success);
+  background: var(--color-white);
+  border-radius: var(--radius-round);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.step-icon {
+  font-size: 2rem;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.step-btn:not(:disabled):hover .step-icon {
+  transform: scale(1.2);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.step-btn.completed .step-label {
+  color: var(--color-success);
+}
+
+/* ===========================================
+   Message Area
+   =========================================== */
+.message-area {
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  animation: fadeIn 0.8s ease-out 0.6s both;
+  border: 2px dashed var(--color-primary-light);
+}
+
+.message-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+/* ===========================================
+   Settings
+   =========================================== */
+.settings-btn {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-round);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.settings-btn:hover {
+  transform: rotate(90deg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  max-width: 320px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.modal-content h2 {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  margin-bottom: var(--space-lg);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-primary-light);
+}
+
+.setting-item label:first-child {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* Toggle Switch */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--color-locked);
+  border-radius: 28px;
+  transition: background 0.3s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: var(--color-white);
+  border-radius: var(--radius-round);
+  transition: transform 0.3s ease;
+}
+
+.toggle input:checked + .toggle-slider {
+  background: var(--color-success);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.reset-btn {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-accent);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #D84315;
+}
+
+.reset-btn:active {
+  transform: scale(0.95);
+}
+
+.modal-close {
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-xl);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.modal-close:hover {
+  background: var(--color-primary-dark);
+}
+
+/* ===========================================
+   Particle Canvas
+   =========================================== */
+.particle-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* ===========================================
+   Animations
+   =========================================== */
+@keyframes slideDown {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes glowPulse {
+  0%, 100% { box-shadow: var(--shadow-md); }
+  50% { box-shadow: var(--shadow-glow); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes rainbow {
+  0% { color: #FF5722; }
+  25% { color: #FF9800; }
+  50% { color: #4CAF50; }
+  75% { color: #2196F3; }
+  100% { color: #FF5722; }
+}
+
+@keyframes btnPress {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+
+.btn-pressed {
+  animation: btnPress 0.3s ease;
+}
+
+/* ===========================================
+   Responsive
+   =========================================== */
+@media (max-height: 700px) {
+  .app-header {
+    padding: var(--space-sm) 0;
+  }
+  .app-title {
+    font-size: 1.6rem;
+  }
+  .puzzle-frame {
+    max-width: 280px;
+  }
+  .step-btn {
+    padding: var(--space-sm) var(--space-xs);
+  }
+  .step-icon {
+    font-size: 1.6rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .puzzle-frame {
+    max-width: 400px;
+  }
+}
