@@ -45,7 +45,9 @@
 }
 
 /* Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -146,7 +148,7 @@ body {
   left: 0;
   right: 0;
   padding: var(--space-sm) var(--space-md);
-  background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
   color: var(--color-white);
   font-size: 0.9rem;
   font-weight: 700;
@@ -253,7 +255,7 @@ body {
   z-index: 0;
 }
 
-.step-btn > * {
+.step-btn>* {
   position: relative;
   z-index: 1;
 }
@@ -309,6 +311,13 @@ body {
   font-size: 2rem;
   position: relative;
   transition: transform 0.3s ease;
+}
+
+.step-icon-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
 .step-btn:not(:disabled):hover .step-icon {
@@ -534,11 +543,11 @@ body {
   transition: transform 0.3s ease;
 }
 
-.toggle input:checked + .toggle-slider {
+.toggle input:checked+.toggle-slider {
   background: var(--color-success);
 }
 
-.toggle input:checked + .toggle-slider::before {
+.toggle input:checked+.toggle-slider::before {
   transform: translateX(24px);
 }
 
@@ -597,47 +606,111 @@ body {
    Animations
    =========================================== */
 @keyframes slideDown {
-  from { transform: translateY(-30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 @keyframes glowPulse {
-  0%, 100% { box-shadow: var(--shadow-md); }
-  50% { box-shadow: var(--shadow-glow); }
+
+  0%,
+  100% {
+    box-shadow: var(--shadow-md);
+  }
+
+  50% {
+    box-shadow: var(--shadow-glow);
+  }
 }
 
 @keyframes popIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes rainbow {
-  0% { color: #FF5722; }
-  25% { color: #FF9800; }
-  50% { color: #4CAF50; }
-  75% { color: #2196F3; }
-  100% { color: #FF5722; }
+  0% {
+    color: #FF5722;
+  }
+
+  25% {
+    color: #FF9800;
+  }
+
+  50% {
+    color: #4CAF50;
+  }
+
+  75% {
+    color: #2196F3;
+  }
+
+  100% {
+    color: #FF5722;
+  }
 }
 
 @keyframes btnPress {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.85); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.85);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .btn-pressed {
@@ -651,15 +724,19 @@ body {
   .app-header {
     padding: var(--space-sm) 0;
   }
+
   .app-title {
     font-size: 1.6rem;
   }
+
   .puzzle-frame {
     max-width: 280px;
   }
+
   .step-btn {
     padding: var(--space-sm) var(--space-xs);
   }
+
   .step-icon {
     font-size: 1.6rem;
   }
