@@ -36,8 +36,6 @@ const STEPS = [
 const canvas = document.getElementById('puzzle-canvas');
 const ctx = canvas.getContext('2d');
 const hintText = document.getElementById('hint-text');
-const answerOverlay = document.getElementById('answer-overlay');
-const answerName = document.getElementById('answer-name');
 const messageText = document.getElementById('message-text');
 const stepButtons = [
   document.getElementById('step-shoes'),
@@ -263,7 +261,7 @@ function drawImageCover(size) {
 // ===========================================
 // UI Update
 // ===========================================
-function updateUI(skipAnswerOverlay = false) {
+function updateUI() {
   // Update step buttons
   stepButtons.forEach((btn, i) => {
     btn.classList.remove('active', 'completed', 'locked');
@@ -285,16 +283,6 @@ function updateUI(skipAnswerOverlay = false) {
     hintText.classList.add('visible');
   } else {
     hintText.classList.remove('visible');
-  }
-
-  // Update answer overlay (skip on fresh goal to show full image first)
-  if (currentStep >= 2 && !skipAnswerOverlay) {
-    answerName.textContent = currentPuzzle.name;
-    answerOverlay.classList.remove('hidden');
-    answerOverlay.classList.add('show');
-  } else {
-    answerOverlay.classList.add('hidden');
-    answerOverlay.classList.remove('show');
   }
 
   // Update message
@@ -331,16 +319,11 @@ function completeStep(stepIndex) {
   renderPuzzle();
 
   if (stepIndex === 2) {
-    // Final step: show full image for 2 seconds before answer overlay
-    updateUI(true); // skip answer overlay
+    // Final step: show full image with celebration
+    updateUI();
     setTimeout(() => {
       startCelebration();
-    }, 800);
-    setTimeout(() => {
-      answerName.textContent = currentPuzzle.name;
-      answerOverlay.classList.remove('hidden');
-      answerOverlay.classList.add('show');
-    }, 2000);
+    }, 500);
   } else {
     // Normal step
     setTimeout(() => {
