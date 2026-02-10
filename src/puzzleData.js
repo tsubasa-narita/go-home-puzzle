@@ -11,11 +11,13 @@
 // 2. 下のリストに { id, name, image, hints } を追加する
 // ==================================================
 
+const BASE = import.meta.env.BASE_URL;
+
 export const PUZZLES = [
   {
     id: 'komachi',
     name: 'こまち',
-    image: '/images/komachi.png',
+    image: `${BASE}images/komachi.png`,
     hints: [
       'あかい いろが みえるよ！🔴',
       'でんしゃ かな？ しんかんせん かな？🚄',
@@ -24,7 +26,7 @@ export const PUZZLES = [
   {
     id: 'hayabusa',
     name: 'はやぶさ',
-    image: '/images/hayabusa.png',
+    image: `${BASE}images/hayabusa.png`,
     hints: [
       'みどりいろ！なにかな？💚',
       'しんかんせん だ！どの しんかんせん？🚅',
@@ -33,7 +35,7 @@ export const PUZZLES = [
   {
     id: 'firetruck',
     name: 'しょうぼうしゃ',
-    image: '/images/firetruck.png',
+    image: `${BASE}images/firetruck.png`,
     hints: [
       'あかくて おおきい！🔴',
       'おみず を だすよ！なんの くるま？🚒',
@@ -42,7 +44,7 @@ export const PUZZLES = [
   {
     id: 'panda',
     name: 'パンダ',
-    image: '/images/panda.png',
+    image: `${BASE}images/panda.png`,
     hints: [
       'しろと くろ の どうぶつ だよ！🐾',
       'ささ を たべるよ！だ〜れだ？🎋',
@@ -51,7 +53,7 @@ export const PUZZLES = [
   {
     id: 'rabbit',
     name: 'うさぎ',
-    image: '/images/rabbit.png',
+    image: `${BASE}images/rabbit.png`,
     hints: [
       'ながい みみ が みえる！👂',
       'ぴょんぴょん はねるよ！🐰',
@@ -60,7 +62,7 @@ export const PUZZLES = [
   {
     id: 'lion',
     name: 'ライオン',
-    image: '/images/lion.png',
+    image: `${BASE}images/lion.png`,
     hints: [
       'きいろい たてがみ！🦁',
       'どうぶつ の おうさま だよ！👑',
