@@ -2,14 +2,14 @@
   "name": "だ〜れだ？パズルラリー",
   "short_name": "だ〜れだ？",
   "description": "お子様が帰りたくなる楽しいパズルラリーアプリ",
-  "start_url": "/",
+  "start_url": "/go-home-puzzle/",
   "display": "standalone",
   "background_color": "#FFF8E1",
   "theme_color": "#FF9800",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/vite.svg",
+      "src": "/go-home-puzzle/vite.svg",
       "sizes": "any",
       "type": "image/svg+xml"
     }
