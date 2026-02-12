@@ -140,6 +140,15 @@ export const PUZZLES = [
       'いず に いく とっきゅう だよ！💎',
     ],
   },
+  {
+    id: 'narita-express',
+    name: 'なりたエクスプレス',
+    image: `${BASE}images/narita-express.jpg`,
+    hints: [
+      'あかい いろ と くろい いろ！🔴⚫',
+      'ひこうき に のる 人 が のるよ！✈️',
+    ],
+  },
 ];
 
 /**
