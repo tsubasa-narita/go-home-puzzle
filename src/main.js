@@ -243,19 +243,23 @@ function drawFullImage(size) {
 function drawImageCover(size) {
   const img = puzzleImage;
   const imgRatio = img.naturalWidth / img.naturalHeight;
-  let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+
+  let drawWidth = size;
+  let drawHeight = size;
+  let dx = 0;
+  let dy = 0;
 
   if (imgRatio > 1) {
-    // Landscape: crop sides
-    sw = img.naturalHeight;
-    sx = (img.naturalWidth - sw) / 2;
-  } else if (imgRatio < 1) {
-    // Portrait: crop top/bottom
-    sh = img.naturalWidth;
-    sy = (img.naturalHeight - sh) / 2;
+    // Landscape: width matches size, height scales down
+    drawHeight = size / imgRatio;
+    dy = (size - drawHeight) / 2;
+  } else {
+    // Portrait: height matches size, width scales down
+    drawWidth = size * imgRatio;
+    dx = (size - drawWidth) / 2;
   }
 
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
+  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, drawWidth, drawHeight);
 }
 
 // ===========================================

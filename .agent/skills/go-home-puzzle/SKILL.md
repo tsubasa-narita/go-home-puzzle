@@ -70,7 +70,7 @@ go-home-puzzle/
 │   │   ├── rabbit.png      # パズル画像: うさぎ
 │   │   ├── lion.png        # パズル画像: ライオン
 │   │   ├── icon-shoes.png  # ステップアイコン: くつ（N'EX風）
-│   │   ├── icon-walking.png # ステップアイコン: いどう（ママと男の子）
+│   │   ├── icon-walking.jpg # ステップアイコン: いどう（ママと男の子）
 │   │   └── icon-apartment.png # ステップアイコン: おうち（タワマン）
 │   ├── manifest.json       # PWAマニフェスト
 │   ├── sw.js               # Service Worker
