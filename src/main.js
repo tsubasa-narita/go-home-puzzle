@@ -8,25 +8,30 @@ import { playStepSound, playGoalSound, startCelebration, animateButtonPress } fr
 // ===========================================
 // State
 // ===========================================
-let currentStep = -1; // -1=未開始, 0=靴完了, 1=移動完了, 2=おうち完了
+let currentStep = -1; // -1=未開始, 0=靴完了, 1=移動完了, 2=おうち完了, 3=おふろ完了
 let currentPuzzle = null;
 let puzzleImage = null;
 
 const STEPS = [
   {
-    revealPercent: 0.30,
+    revealPercent: 0.35,
     message: (puzzle) =>
       `あ！いろが みえた！✨<br>${puzzle.hints[0]}<br>いどう したら もっと みえるよ！`,
   },
   {
+    revealPercent: 0.50,
+    message: (puzzle) =>
+      `もっと みえてきた！🎉<br>${puzzle.hints[1]}<br>おうちに かえろう！`,
+  },
+  {
     revealPercent: 0.65,
     message: (puzzle) =>
-      `もっと みえてきた！🎉<br>${puzzle.hints[1]}<br>おうちに ついたら ぜんぶ みえるよ！`,
+      `もうすぐ おうち だよ！🏠<br>なにかな？ なにかな？<br>おふろに はいろう！`,
   },
   {
     revealPercent: 1.0,
     message: (puzzle) =>
-      `🎊 せいかい！<br><span style="color:#FF5722;font-size:1.3em;font-weight:900">${puzzle.name}</span><br>でした〜！おかえり！🏠`,
+      `🎊 せいかい！<br><span style="color:#FF5722;font-size:1.3em;font-weight:900">${puzzle.name}</span><br>でした〜！おかえり！🛀`,
   },
 ];
 
@@ -41,6 +46,7 @@ const stepButtons = [
   document.getElementById('step-shoes'),
   document.getElementById('step-move'),
   document.getElementById('step-home'),
+  document.getElementById('step-bath'),
 ];
 
 // Settings
@@ -243,23 +249,19 @@ function drawFullImage(size) {
 function drawImageCover(size) {
   const img = puzzleImage;
   const imgRatio = img.naturalWidth / img.naturalHeight;
-
-  let drawWidth = size;
-  let drawHeight = size;
-  let dx = 0;
-  let dy = 0;
+  let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
 
   if (imgRatio > 1) {
-    // Landscape: width matches size, height scales down
-    drawHeight = size / imgRatio;
-    dy = (size - drawHeight) / 2;
-  } else {
-    // Portrait: height matches size, width scales down
-    drawWidth = size * imgRatio;
-    dx = (size - drawWidth) / 2;
+    // Landscape: crop sides
+    sw = img.naturalHeight;
+    sx = (img.naturalWidth - sw) / 2;
+  } else if (imgRatio < 1) {
+    // Portrait: crop top/bottom
+    sh = img.naturalWidth;
+    sy = (img.naturalHeight - sh) / 2;
   }
 
-  ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, drawWidth, drawHeight);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, size, size);
 }
 
 // ===========================================
