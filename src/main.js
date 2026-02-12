@@ -316,7 +316,7 @@ function completeStep(stepIndex) {
   animateButtonPress(stepButtons[stepIndex]);
 
   // Play sound
-  if (stepIndex === 2) {
+  if (stepIndex === STEPS.length - 1) {
     playGoalSound();
   } else {
     playStepSound();
@@ -325,7 +325,7 @@ function completeStep(stepIndex) {
   // Re-render with transition
   renderPuzzle();
 
-  if (stepIndex === 2) {
+  if (stepIndex === STEPS.length - 1) {
     // Final step: show full image with celebration
     updateUI();
     setTimeout(() => {
