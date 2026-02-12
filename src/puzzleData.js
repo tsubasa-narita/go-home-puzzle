@@ -68,6 +68,78 @@ export const PUZZLES = [
       'どうぶつ の おうさま だよ！👑',
     ],
   },
+  {
+    id: 'yokosuka',
+    name: 'よこすかせん',
+    image: `${BASE}images/yokosuka.jpg`,
+    hints: [
+      'あお と クリームいろ！🔵',
+      'かまくら に いく デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'yamanote',
+    name: 'やまのてせん',
+    image: `${BASE}images/yamanote.jpg`,
+    hints: [
+      'きみどりいろ の デンシャ！💚',
+      'とうきょう を ぐるぐる まわるよ！♻️',
+    ],
+  },
+  {
+    id: 'seibu40000',
+    name: 'せいぶせん',
+    image: `${BASE}images/seibu40000.jpg`,
+    hints: [
+      'もぐもぐ さきっちょ が まるい！🥖',
+      'ブルー と グリーン の いろ だよ！💙',
+    ],
+  },
+  {
+    id: 'tokyu-toyoko',
+    name: 'とうきゅう とうよこせん',
+    image: `${BASE}images/tokyu-toyoko.jpg`,
+    hints: [
+      'あかい ライン が かっこいい！🔴',
+      'しぶや に いく デンシャ だよ！🏙️',
+    ],
+  },
+  {
+    id: 'shonan-shinjuku',
+    name: 'しょうなん しんじゅくらいん',
+    image: `${BASE}images/shonan-shinjuku.jpg`,
+    hints: [
+      'オレンジ と みどり の ライン！🍊',
+      'とおく まで いく デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'kagayaki',
+    name: 'かがやき',
+    image: `${BASE}images/kagayaki.jpg`,
+    hints: [
+      'あお と きんいろ！✨',
+      'ほくりく に いく しんかんせん！🚅',
+    ],
+  },
+  {
+    id: 'tsubasa',
+    name: 'つばさ',
+    image: `${BASE}images/tsubasa.jpg`,
+    hints: [
+      'シルバー と むらさき！💜',
+      'やまがた に いく しんかんせん！🚅',
+    ],
+  },
+  {
+    id: 'saphir-odoriko',
+    name: 'サフィールおどりこ',
+    image: `${BASE}images/saphir-odoriko.jpg`,
+    hints: [
+      'あおい うみ みたいな いろ！🌊',
+      'いず に いく とっきゅう だよ！💎',
+    ],
+  },
 ];
 
 /**
