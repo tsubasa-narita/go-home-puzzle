@@ -136,7 +136,7 @@ function renderPuzzle() {
   const displaySize = canvas.width / window.devicePixelRatio;
   ctx.clearRect(0, 0, displaySize, displaySize);
 
-  if (currentStep >= 2) {
+  if (currentStep >= STEPS.length - 1) {
     // Fully revealed!
     drawFullImage(displaySize);
   } else if (currentStep >= 0) {
@@ -285,7 +285,7 @@ function updateUI() {
   });
 
   // Update hint text
-  if (currentStep >= 0 && currentStep < 2) {
+  if (currentStep >= 0 && currentStep < STEPS.length - 1) {
     hintText.textContent = currentPuzzle.hints[currentStep] || '';
     hintText.classList.add('visible');
   } else {
