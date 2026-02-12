@@ -13,18 +13,19 @@ let currentPuzzle = null;
 let puzzleImage = null;
 
 const STEPS = [
+
   {
-    revealPercent: 0.35,
+    revealPercent: 0.25,
     message: (puzzle) =>
       `あ！いろが みえた！✨<br>${puzzle.hints[0]}<br>いどう したら もっと みえるよ！`,
   },
   {
-    revealPercent: 0.50,
+    revealPercent: 0.40,
     message: (puzzle) =>
       `もっと みえてきた！🎉<br>${puzzle.hints[1]}<br>おうちに かえろう！`,
   },
   {
-    revealPercent: 0.65,
+    revealPercent: 0.55,
     message: (puzzle) =>
       `もうすぐ おうち だよ！🏠<br>なにかな？ なにかな？<br>おふろに はいろう！`,
   },
