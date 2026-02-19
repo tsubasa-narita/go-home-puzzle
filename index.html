@@ -53,6 +53,10 @@
         <span class="step-icon"><img src="images/icon-bath.jpg" alt="おふろ" class="step-icon-img" /></span>
         <span class="step-label">おふろ</span>
       </button>
+      <button id="step-bed" class="step-btn locked" data-step="4" disabled>
+        <span class="step-icon"><img src="images/icon-bed.jpg" alt="ねる" class="step-icon-img" /></span>
+        <span class="step-label">ねる</span>
+      </button>
     </nav>
 
     <!-- Message Area -->
@@ -64,6 +68,8 @@
 
     <!-- Settings -->
     <button id="settings-btn" class="settings-btn" aria-label="設定">⚙️</button>
+    <!-- Stamp Collection Button -->
+    <button id="stamp-btn" class="stamp-btn" aria-label="スタンプ">📛</button>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal hidden">
@@ -79,6 +85,11 @@
           </label>
         </div>
         <div class="setting-section">
+          <label class="setting-section-label">🎮 みせかた を かえる</label>
+          <p class="setting-section-note">すきな みせかた を えらんでね</p>
+          <div id="mode-picker" class="mode-picker"></div>
+        </div>
+        <div class="setting-section">
           <label class="setting-section-label">🖼️ えを かえる</label>
           <p class="setting-section-note">すきな え を えらんでね</p>
           <div id="image-picker" class="image-picker"></div>
@@ -88,6 +99,17 @@
           <button id="reset-btn" class="reset-btn">きょうのパズルをリセット</button>
         </div>
         <button class="modal-close" id="close-settings">とじる</button>
+      </div>
+    </div>
+
+    <!-- Stamp Collection Modal -->
+    <div id="stamp-modal" class="modal hidden">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content stamp-modal-content">
+        <h2>📛 スタンプカード</h2>
+        <div id="stamp-streak" class="stamp-streak"></div>
+        <div id="stamp-grid" class="stamp-grid"></div>
+        <button class="modal-close" id="close-stamps">とじる</button>
       </div>
     </div>
 

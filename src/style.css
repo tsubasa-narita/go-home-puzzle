@@ -218,20 +218,21 @@ body {
    =========================================== */
 .steps-bar {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   width: 100%;
-  max-width: 360px;
+  max-width: 400px;
   padding: var(--space-md) 0;
   animation: fadeIn 0.8s ease-out 0.4s both;
 }
 
 .step-btn {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-md) var(--space-sm);
+  padding: var(--space-sm) var(--space-xs);
   background: var(--color-card-bg);
   border: 3px solid var(--color-primary);
   border-radius: var(--radius-md);
@@ -325,10 +326,12 @@ body {
 }
 
 .step-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--color-text);
-  white-space: nowrap;
+  text-align: center;
+  line-height: 1.2;
+  word-break: keep-all;
 }
 
 .step-btn.completed .step-label {
@@ -378,6 +381,29 @@ body {
 
 .settings-btn:hover {
   transform: rotate(90deg);
+  box-shadow: var(--shadow-md);
+}
+
+.stamp-btn {
+  display: none;
+  /* TODO: スタンプ機能を有効にする際に削除 */
+  position: fixed;
+  top: var(--space-md);
+  left: var(--space-md);
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--color-card-bg);
+  border-radius: var(--radius-round);
+  box-shadow: var(--shadow-sm);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stamp-btn:hover {
+  transform: scale(1.1);
   box-shadow: var(--shadow-md);
 }
 
@@ -450,6 +476,37 @@ body {
   font-size: 0.8rem;
   color: var(--color-text-light);
   margin-bottom: var(--space-sm);
+}
+
+.mode-picker {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+}
+
+.mode-picker-item {
+  flex: 1;
+  padding: var(--space-sm) var(--space-xs);
+  border: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.mode-picker-item:hover {
+  border-color: var(--color-primary-light);
+  background: var(--color-primary-light);
+}
+
+.mode-picker-item.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .image-picker {
@@ -745,5 +802,119 @@ body {
 @media (min-width: 768px) {
   .puzzle-frame {
     max-width: 400px;
+  }
+}
+
+/* ===========================================
+   Stamp Card Styles
+   =========================================== */
+.stamp-streak {
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: var(--space-md);
+  background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stamp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+  max-height: 300px;
+  overflow-y: auto;
+  padding: var(--space-xs);
+}
+
+.stamp-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.stamp-item.earned {
+  background: linear-gradient(135deg, #FFF8E1, #FFECB3);
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+  animation: stampPop 0.3s ease-out;
+}
+
+.stamp-item.empty {
+  background: var(--color-bg);
+  border: 2px dashed #ccc;
+  opacity: 0.5;
+}
+
+.stamp-img {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.stamp-emoji {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.stamp-date {
+  font-size: 0.6rem;
+  color: var(--color-text-light);
+  font-weight: 700;
+}
+
+.stamp-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stamp-empty-text {
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+@keyframes stampPop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.stamp-new-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #FF5722;
+  color: white;
+  font-size: 0.5rem;
+  font-weight: 900;
+  padding: 2px 4px;
+  border-radius: 8px;
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
   }
 }
