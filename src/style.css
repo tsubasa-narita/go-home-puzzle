@@ -225,6 +225,18 @@ body {
   animation: fadeIn 0.8s ease-out 0.4s both;
 }
 
+/* 6+ steps: wrap to 2 rows, 5 per row */
+.steps-bar.steps-bar-wrap {
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 400px;
+}
+
+.steps-bar-wrap .step-btn {
+  flex: 0 0 calc((100% - 4 * var(--space-sm)) / 5);
+  min-width: 0;
+}
+
 .step-btn {
   flex: 1;
   min-width: 0;
@@ -461,7 +473,7 @@ body {
 }
 
 .setting-section {
-  padding: var(--space-md) 0;
+  padding: var(--space-sm) 0;
   border-bottom: 1px solid var(--color-primary-light);
 }
 
@@ -469,7 +481,36 @@ body {
   font-weight: 700;
   font-size: 1rem;
   display: block;
-  margin-bottom: var(--space-xs);
+  padding: var(--space-xs) 0;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  padding-right: 1.5em;
+}
+
+/* Hide default marker */
+.setting-section-label::-webkit-details-marker {
+  display: none;
+}
+
+.setting-section-label::marker {
+  content: '';
+}
+
+/* Custom toggle arrow */
+.setting-section-label::after {
+  content: '▶';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+  transition: transform 0.25s ease;
+}
+
+details.setting-section[open]>.setting-section-label::after {
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .setting-section-note {
@@ -513,6 +554,47 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-sm);
+}
+
+/* Step Picker (settings) */
+.step-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xs);
+}
+
+.step-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+}
+
+.step-picker-item:hover {
+  background: #FFF3E0;
+}
+
+.step-picker-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.step-picker-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.step-picker-label {
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
 .image-picker-item {
@@ -917,4 +999,109 @@ body {
   50% {
     transform: scale(1.2);
   }
+}
+
+/* =================================================
+   Step Picker
+   ================================================= */
+.step-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-xs);
+}
+
+.step-picker-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.step-picker-item input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.step-picker-icon {
+  font-size: 1.1rem;
+}
+
+.step-picker-label {
+  font-weight: 700;
+}
+
+/* =================================================
+   Step Order List (reorder)
+   ================================================= */
+.step-order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.step-order-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px var(--space-xs);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
+
+.step-order-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.step-order-info {
+  flex: 1;
+  font-weight: 700;
+}
+
+.step-order-arrows {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.step-order-arrow-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 0.7rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.step-order-arrow-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.step-order-arrow-btn:not(:disabled):hover {
+  background: var(--color-primary);
+  color: white;
 }

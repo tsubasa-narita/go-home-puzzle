@@ -4,14 +4,18 @@
 import './style.css';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress } from './puzzleData.js';
 import { playStepSound, playGoalSound, startCelebration, animateButtonPress } from './effects.js';
+import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 
 // ===========================================
 // State
 // ===========================================
-let currentStep = -1; // -1=未開始, 0=靴完了, 1=移動完了, 2=おうち完了, 3=おふろ完了, 4=ねる完了
+let currentStep = -1;
 let currentPuzzle = null;
 let puzzleImage = null;
 let revealMode = 'jigsaw'; // 'jigsaw' | 'curtain' | 'blur'
+let dayMode = 'weekday'; // 'weekday' | 'holiday'
+let activeStepIds = []; // current active step IDs
+let activeStepDefs = []; // current active step definitions
 
 const REVEAL_MODES = [
   { id: 'jigsaw', label: '🧩 パズル' },
@@ -22,36 +26,38 @@ const REVEAL_MODES = [
 // ===========================================
 // Jigsaw Grid Settings
 // ===========================================
-const GRID_SIZE = 4; // 4×4 grid
-const TOTAL_TILES = GRID_SIZE * GRID_SIZE; // 16 tiles
+const GRID_SIZE = 4;
+const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
 
-const STEPS = [
-  {
-    revealCount: 3,
-    message: (puzzle) =>
-      `あ！すこし みえた！✨<br>${puzzle.hints[0]}<br>いどう したら もっと みえるよ！`,
-  },
-  {
-    revealCount: 6,
-    message: (puzzle) =>
-      `もっと みえてきた！🎉<br>${puzzle.hints[1]}<br>おうちに かえろう！`,
-  },
-  {
-    revealCount: 9,
-    message: (puzzle) =>
-      `もうすぐ おうち だよ！🏠<br>なにかな？ なにかな？<br>おふろに はいろう！`,
-  },
-  {
-    revealCount: 13,
-    message: (puzzle) =>
-      `きれいに なったね！🛀✨<br>もうすぐ わかるよ！<br>ねんね しようね！`,
-  },
-  {
-    revealCount: TOTAL_TILES,
-    message: (puzzle) =>
-      `🎊 せいかい！<br><span style="color:#FF5722;font-size:1.3em;font-weight:900">${puzzle.name}</span><br>でした〜！おやすみ！😴`,
-  },
-];
+// Dynamic steps (rebuilt when step config changes)
+let STEPS = [];
+let REVEAL_PERCENTS = [];
+
+function buildDynamicSteps() {
+  const count = activeStepDefs.length;
+  const revealCounts = calcRevealCounts(count, TOTAL_TILES);
+  REVEAL_PERCENTS = calcRevealPercents(count);
+
+  STEPS = activeStepDefs.map((stepDef, i) => {
+    if (i === count - 1) {
+      // Final step
+      return {
+        revealCount: revealCounts[i],
+        message: (puzzle) =>
+          `🎊 せいかい！<br><span style="color:#FF5722;font-size:1.3em;font-weight:900">${puzzle.name}</span><br>でした〜！おやすみ！😴`,
+      };
+    } else {
+      return {
+        revealCount: revealCounts[i],
+        message: (puzzle) => {
+          const hint = puzzle.hints[i % puzzle.hints.length] || '';
+          const nextLabel = activeStepDefs[i + 1]?.label || 'つぎ';
+          return `${stepDef.goalMsg} ✨<br>${hint}<br>つぎは ${nextLabel} だよ！`;
+        },
+      };
+    }
+  });
+}
 
 // ===========================================
 // DOM Elements
@@ -60,13 +66,7 @@ const canvas = document.getElementById('puzzle-canvas');
 const ctx = canvas.getContext('2d');
 const hintText = document.getElementById('hint-text');
 const messageText = document.getElementById('message-text');
-const stepButtons = [
-  document.getElementById('step-shoes'),
-  document.getElementById('step-move'),
-  document.getElementById('step-home'),
-  document.getElementById('step-bath'),
-  document.getElementById('step-bed'),
-];
+let stepButtons = []; // dynamically built
 
 // Settings
 const settingsBtn = document.getElementById('settings-btn');
@@ -78,33 +78,53 @@ const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 // ===========================================
 // Initialization
 // ===========================================
+let _initialized = false;
 function init() {
-  // Load reveal mode
-  revealMode = localStorage.getItem('reveal-mode') || 'jigsaw';
+  if (_initialized) return;
+  _initialized = true;
+  try {
+    console.log('[PUZZLE] init() start');
+    // Load settings
+    revealMode = localStorage.getItem('reveal-mode') || 'jigsaw';
+    dayMode = localStorage.getItem('day-mode') || 'weekday';
+    loadStepConfig();
+    console.log('[PUZZLE] loadStepConfig done, activeStepDefs:', activeStepDefs.length);
 
-  // Check for manually selected puzzle
-  const override = localStorage.getItem('puzzle-override');
-  if (override) {
-    currentPuzzle = PUZZLES.find(p => p.id === override) || getTodayPuzzle();
-  } else {
-    currentPuzzle = getTodayPuzzle();
+    // Build dynamic steps & step bar
+    buildDynamicSteps();
+    buildStepBar();
+    console.log('[PUZZLE] buildStepBar done, stepButtons:', stepButtons.length);
+
+    // Check for manually selected puzzle
+    const override = localStorage.getItem('puzzle-override');
+    if (override) {
+      currentPuzzle = PUZZLES.find(p => p.id === override) || getTodayPuzzle();
+    } else {
+      currentPuzzle = getTodayPuzzle();
+    }
+
+    // Load saved progress
+    const saved = loadProgress();
+    if (saved && saved.puzzleId === currentPuzzle.id) {
+      currentStep = saved.step;
+    }
+
+    // Build pickers
+    buildImagePicker();
+    buildModePicker();
+    buildStepPicker();
+    buildStepOrderList();
+    buildDayModeToggle();
+
+    // Load the puzzle image
+    loadPuzzleImage();
+
+    // Setup event listeners
+    setupEventListeners();
+    console.log('[PUZZLE] init() complete');
+  } catch (err) {
+    console.error('[PUZZLE] init() ERROR:', err);
   }
-
-  // Load saved progress
-  const saved = loadProgress();
-  if (saved && saved.puzzleId === currentPuzzle.id) {
-    currentStep = saved.step;
-  }
-
-  // Build pickers
-  buildImagePicker();
-  buildModePicker();
-
-  // Load the puzzle image
-  loadPuzzleImage();
-
-  // Setup event listeners
-  setupEventListeners();
 }
 
 function loadPuzzleImage() {
@@ -176,10 +196,6 @@ function getShuffledTileOrder(puzzleId) {
   return tiles;
 }
 
-// ===========================================
-// Reveal percent mapping (for curtain & blur modes)
-// ===========================================
-const REVEAL_PERCENTS = [0.25, 0.40, 0.55, 0.80, 1.0];
 
 // ===========================================
 // Rendering
@@ -459,7 +475,8 @@ function updateUI() {
   if (currentStep >= 0 && currentStep < STEPS.length) {
     messageText.innerHTML = STEPS[currentStep].message(currentPuzzle);
   } else {
-    messageText.innerHTML = 'だ〜れだ？<br>くつをはいてみてみよう！✨';
+    const firstLabel = activeStepDefs.length > 0 ? activeStepDefs[0].label : '';
+    messageText.innerHTML = `だ〜れだ？<br>${firstLabel} してみよう！✨`;
   }
 
   // Update image picker selection
@@ -663,6 +680,251 @@ function switchMode(modeId) {
 }
 
 // ===========================================
+// Step Bar (Dynamic)
+// ===========================================
+function buildStepBar() {
+  const bar = document.getElementById('steps-bar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  stepButtons = [];
+
+  // Add 2-row class when 6+ steps
+  bar.classList.toggle('steps-bar-wrap', activeStepDefs.length > 5);
+
+  activeStepDefs.forEach((stepDef, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'step-btn locked';
+    btn.dataset.step = String(i);
+    btn.disabled = true;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'step-icon';
+    const img = document.createElement('img');
+    img.className = 'step-icon-img';
+    img.src = stepDef.icon;
+    img.alt = stepDef.label;
+    // Fallback to emoji if image fails
+    img.onerror = () => {
+      img.style.display = 'none';
+      iconSpan.textContent = stepDef.emoji;
+      iconSpan.style.fontSize = '1.8rem';
+    };
+    iconSpan.appendChild(img);
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'step-label';
+    labelSpan.textContent = stepDef.label;
+
+    btn.appendChild(iconSpan);
+    btn.appendChild(labelSpan);
+
+    btn.addEventListener('click', () => {
+      completeStep(i);
+    });
+
+    bar.appendChild(btn);
+    stepButtons.push(btn);
+  });
+}
+
+// ===========================================
+// Step Config (localStorage)
+// ===========================================
+const STEP_CONFIG_KEY = 'step-config';
+
+function loadStepConfig() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STEP_CONFIG_KEY));
+    if (saved && saved.weekday && saved.holiday) {
+      activeStepIds = dayMode === 'weekday' ? saved.weekday : saved.holiday;
+    } else {
+      activeStepIds = dayMode === 'weekday' ? [...DEFAULT_WEEKDAY] : [...DEFAULT_HOLIDAY];
+    }
+  } catch {
+    activeStepIds = dayMode === 'weekday' ? [...DEFAULT_WEEKDAY] : [...DEFAULT_HOLIDAY];
+  }
+  activeStepDefs = getStepDefs(activeStepIds);
+}
+
+function saveStepConfig() {
+  let saved;
+  try {
+    saved = JSON.parse(localStorage.getItem(STEP_CONFIG_KEY)) || {};
+  } catch {
+    saved = {};
+  }
+  if (!saved.weekday) saved.weekday = [...DEFAULT_WEEKDAY];
+  if (!saved.holiday) saved.holiday = [...DEFAULT_HOLIDAY];
+
+  if (dayMode === 'weekday') {
+    saved.weekday = [...activeStepIds];
+  } else {
+    saved.holiday = [...activeStepIds];
+  }
+  localStorage.setItem(STEP_CONFIG_KEY, JSON.stringify(saved));
+}
+
+function rebuildAfterConfigChange() {
+  activeStepDefs = getStepDefs(activeStepIds);
+  buildDynamicSteps();
+  buildStepBar();
+  resetProgress();
+  currentStep = -1;
+  renderPuzzle();
+  updateUI();
+  saveStepConfig();
+}
+
+// ===========================================
+// Day Mode Toggle
+// ===========================================
+function buildDayModeToggle() {
+  const container = document.getElementById('day-mode-toggle');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const modes = [
+    { id: 'weekday', label: '📅 へいじつ' },
+    { id: 'holiday', label: '🎉 おやすみ' },
+  ];
+
+  modes.forEach((mode) => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-picker-item';
+    btn.dataset.dayMode = mode.id;
+    if (mode.id === dayMode) {
+      btn.classList.add('selected');
+    }
+    btn.textContent = mode.label;
+    btn.addEventListener('click', () => {
+      if (mode.id === dayMode) return;
+      dayMode = mode.id;
+      localStorage.setItem('day-mode', dayMode);
+      loadStepConfig();
+      rebuildAfterConfigChange();
+      buildStepPicker(); // refresh picker
+      buildStepOrderList(); // refresh order list
+      // Update toggle selection
+      container.querySelectorAll('.mode-picker-item').forEach(b => {
+        b.classList.toggle('selected', b.dataset.dayMode === dayMode);
+      });
+    });
+    container.appendChild(btn);
+  });
+}
+
+// ===========================================
+// Step Picker (settings)
+// ===========================================
+function buildStepPicker() {
+  const container = document.getElementById('step-picker');
+  if (!container) return;
+  container.innerHTML = '';
+
+  ALL_STEPS.forEach((stepDef) => {
+    const item = document.createElement('label');
+    item.className = 'step-picker-item';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = stepDef.id;
+    checkbox.checked = activeStepIds.includes(stepDef.id);
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        if (activeStepIds.length < 10) {
+          activeStepIds.push(stepDef.id);
+        } else {
+          checkbox.checked = false;
+          return;
+        }
+      } else {
+        if (activeStepIds.length <= 2) {
+          checkbox.checked = true;
+          return;
+        }
+        activeStepIds = activeStepIds.filter(id => id !== stepDef.id);
+      }
+      rebuildAfterConfigChange();
+      buildStepOrderList();
+    });
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'step-picker-icon';
+    iconSpan.textContent = stepDef.emoji;
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'step-picker-label';
+    labelSpan.textContent = stepDef.label;
+
+    item.appendChild(checkbox);
+    item.appendChild(iconSpan);
+    item.appendChild(labelSpan);
+    container.appendChild(item);
+  });
+}
+
+// ===========================================
+// Step Order List (drag / arrow reorder)
+// ===========================================
+function buildStepOrderList() {
+  const container = document.getElementById('step-order-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  activeStepIds.forEach((id, idx) => {
+    const stepDef = ALL_STEPS.find(s => s.id === id);
+    if (!stepDef) return;
+
+    const row = document.createElement('div');
+    row.className = 'step-order-row';
+
+    // Number badge
+    const numBadge = document.createElement('span');
+    numBadge.className = 'step-order-num';
+    numBadge.textContent = idx + 1;
+
+    // Icon + label
+    const info = document.createElement('span');
+    info.className = 'step-order-info';
+    info.textContent = `${stepDef.emoji} ${stepDef.label}`;
+
+    // Arrow buttons container
+    const arrows = document.createElement('span');
+    arrows.className = 'step-order-arrows';
+
+    const upBtn = document.createElement('button');
+    upBtn.className = 'step-order-arrow-btn';
+    upBtn.textContent = '▲';
+    upBtn.disabled = idx === 0;
+    upBtn.addEventListener('click', () => {
+      if (idx <= 0) return;
+      [activeStepIds[idx - 1], activeStepIds[idx]] = [activeStepIds[idx], activeStepIds[idx - 1]];
+      rebuildAfterConfigChange();
+      buildStepOrderList();
+    });
+
+    const downBtn = document.createElement('button');
+    downBtn.className = 'step-order-arrow-btn';
+    downBtn.textContent = '▼';
+    downBtn.disabled = idx === activeStepIds.length - 1;
+    downBtn.addEventListener('click', () => {
+      if (idx >= activeStepIds.length - 1) return;
+      [activeStepIds[idx], activeStepIds[idx + 1]] = [activeStepIds[idx + 1], activeStepIds[idx]];
+      rebuildAfterConfigChange();
+      buildStepOrderList();
+    });
+
+    arrows.appendChild(upBtn);
+    arrows.appendChild(downBtn);
+
+    row.appendChild(numBadge);
+    row.appendChild(info);
+    row.appendChild(arrows);
+    container.appendChild(row);
+  });
+}
+
+// ===========================================
 // Stamp Card
 // ===========================================
 const STAMP_KEY = 'puzzle-stamps';
@@ -803,8 +1065,8 @@ if ('serviceWorker' in navigator) {
 // ===========================================
 // Start!
 // ===========================================
-document.addEventListener('DOMContentLoaded', init);
-// Also handle the case where script loads after DOMContentLoaded
-if (document.readyState !== 'loading') {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
   init();
 }

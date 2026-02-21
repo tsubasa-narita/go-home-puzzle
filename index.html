@@ -35,29 +35,8 @@
       </div>
     </main>
 
-    <!-- Steps -->
-    <nav class="steps-bar">
-      <button id="step-shoes" class="step-btn" data-step="0">
-        <span class="step-icon"><img src="images/icon-shoes.png" alt="くつ" class="step-icon-img" /></span>
-        <span class="step-label">くつをはく</span>
-      </button>
-      <button id="step-move" class="step-btn locked" data-step="1" disabled>
-        <span class="step-icon"><img src="images/icon-walking.jpg" alt="いどう" class="step-icon-img" /></span>
-        <span class="step-label">いどうする</span>
-      </button>
-      <button id="step-home" class="step-btn locked" data-step="2" disabled>
-        <span class="step-icon"><img src="images/icon-apartment.png" alt="おうち" class="step-icon-img" /></span>
-        <span class="step-label">おうち</span>
-      </button>
-      <button id="step-bath" class="step-btn locked" data-step="3" disabled>
-        <span class="step-icon"><img src="images/icon-bath.jpg" alt="おふろ" class="step-icon-img" /></span>
-        <span class="step-label">おふろ</span>
-      </button>
-      <button id="step-bed" class="step-btn locked" data-step="4" disabled>
-        <span class="step-icon"><img src="images/icon-bed.jpg" alt="ねる" class="step-icon-img" /></span>
-        <span class="step-label">ねる</span>
-      </button>
-    </nav>
+    <!-- Steps (dynamically built by JS) -->
+    <nav class="steps-bar" id="steps-bar"></nav>
 
     <!-- Message Area -->
     <div id="message-area" class="message-area">
@@ -84,16 +63,27 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
-        <div class="setting-section">
-          <label class="setting-section-label">🎮 みせかた を かえる</label>
+        <details class="setting-section">
+          <summary class="setting-section-label">🎮 みせかた を かえる</summary>
           <p class="setting-section-note">すきな みせかた を えらんでね</p>
           <div id="mode-picker" class="mode-picker"></div>
-        </div>
-        <div class="setting-section">
-          <label class="setting-section-label">🖼️ えを かえる</label>
+        </details>
+        <details class="setting-section" open>
+          <summary class="setting-section-label">📅 へいじつ / おやすみ</summary>
+          <div id="day-mode-toggle" class="mode-picker"></div>
+        </details>
+        <details class="setting-section" open>
+          <summary class="setting-section-label">✅ ステップを えらぶ</summary>
+          <p class="setting-section-note">やること を えらんでね（さいてい2こ）</p>
+          <div id="step-picker" class="step-picker"></div>
+          <p class="setting-section-note" style="margin-top:var(--space-sm)">🔀 じゅんばん を かえる</p>
+          <div id="step-order-list" class="step-order-list"></div>
+        </details>
+        <details class="setting-section">
+          <summary class="setting-section-label">🖼️ えを かえる</summary>
           <p class="setting-section-note">すきな え を えらんでね</p>
           <div id="image-picker" class="image-picker"></div>
-        </div>
+        </details>
         <div class="setting-item">
           <label>🔄 リセット</label>
           <button id="reset-btn" class="reset-btn">きょうのパズルをリセット</button>
