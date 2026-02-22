@@ -973,8 +973,10 @@ function buildStepPicker() {
 }
 
 // ===========================================
-// Step Order List (drag / arrow reorder)
+// Step Order List (touch drag & drop reorder)
 // ===========================================
+let _dragState = null;
+
 function buildStepOrderList() {
   const container = document.getElementById('step-order-list');
   if (!container) return;
@@ -986,6 +988,12 @@ function buildStepOrderList() {
 
     const row = document.createElement('div');
     row.className = 'step-order-row';
+    row.dataset.idx = String(idx);
+
+    // Drag handle
+    const handle = document.createElement('span');
+    handle.className = 'step-order-handle';
+    handle.textContent = '☰';
 
     // Number badge
     const numBadge = document.createElement('span');
@@ -997,41 +1005,147 @@ function buildStepOrderList() {
     info.className = 'step-order-info';
     info.textContent = `${stepDef.emoji} ${stepDef.label}`;
 
-    // Arrow buttons container
-    const arrows = document.createElement('span');
-    arrows.className = 'step-order-arrows';
-
-    const upBtn = document.createElement('button');
-    upBtn.className = 'step-order-arrow-btn';
-    upBtn.textContent = '▲';
-    upBtn.disabled = idx === 0;
-    upBtn.addEventListener('click', () => {
-      if (idx <= 0) return;
-      [activeStepIds[idx - 1], activeStepIds[idx]] = [activeStepIds[idx], activeStepIds[idx - 1]];
-      rebuildAfterConfigChange();
-      buildStepOrderList();
-    });
-
-    const downBtn = document.createElement('button');
-    downBtn.className = 'step-order-arrow-btn';
-    downBtn.textContent = '▼';
-    downBtn.disabled = idx === activeStepIds.length - 1;
-    downBtn.addEventListener('click', () => {
-      if (idx >= activeStepIds.length - 1) return;
-      [activeStepIds[idx], activeStepIds[idx + 1]] = [activeStepIds[idx + 1], activeStepIds[idx]];
-      rebuildAfterConfigChange();
-      buildStepOrderList();
-    });
-
-    arrows.appendChild(upBtn);
-    arrows.appendChild(downBtn);
-
+    row.appendChild(handle);
     row.appendChild(numBadge);
     row.appendChild(info);
-    row.appendChild(arrows);
     container.appendChild(row);
   });
+
+  // Setup drag listeners on the container
+  setupDragListeners(container);
 }
+
+function setupDragListeners(container) {
+  // --- Touch events ---
+  container.addEventListener('touchstart', (e) => {
+    const handle = e.target.closest('.step-order-handle');
+    if (!handle) return;
+    const row = handle.closest('.step-order-row');
+    if (!row) return;
+    e.preventDefault();
+    startDrag(container, row, e.touches[0].clientY);
+  }, { passive: false });
+
+  container.addEventListener('touchmove', (e) => {
+    if (!_dragState) return;
+    e.preventDefault();
+    moveDrag(e.touches[0].clientY);
+  }, { passive: false });
+
+  container.addEventListener('touchend', () => {
+    if (!_dragState) return;
+    endDrag();
+  });
+
+  // --- Mouse events (for desktop testing) ---
+  container.addEventListener('mousedown', (e) => {
+    const handle = e.target.closest('.step-order-handle');
+    if (!handle) return;
+    const row = handle.closest('.step-order-row');
+    if (!row) return;
+    e.preventDefault();
+    startDrag(container, row, e.clientY);
+
+    const onMouseMove = (ev) => {
+      if (!_dragState) return;
+      moveDrag(ev.clientY);
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      if (_dragState) endDrag();
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+}
+
+function startDrag(container, row, clientY) {
+  const rect = row.getBoundingClientRect();
+  const idx = parseInt(row.dataset.idx, 10);
+
+  // Create ghost element
+  const ghost = row.cloneNode(true);
+  ghost.className = 'step-order-row step-order-ghost';
+  ghost.style.width = rect.width + 'px';
+  ghost.style.top = rect.top + 'px';
+  ghost.style.left = rect.left + 'px';
+  document.body.appendChild(ghost);
+
+  // Create placeholder
+  const placeholder = document.createElement('div');
+  placeholder.className = 'step-order-placeholder';
+  placeholder.style.height = rect.height + 'px';
+
+  // Hide original row and insert placeholder
+  row.classList.add('step-order-dragging');
+  row.parentNode.insertBefore(placeholder, row);
+
+  _dragState = {
+    container,
+    row,
+    ghost,
+    placeholder,
+    startY: clientY,
+    offsetY: clientY - rect.top,
+    currentIdx: idx,
+    targetIdx: idx,
+  };
+}
+
+function moveDrag(clientY) {
+  if (!_dragState) return;
+  const { ghost, container, placeholder, offsetY } = _dragState;
+
+  // Move ghost
+  ghost.style.top = (clientY - offsetY) + 'px';
+
+  // Calculate target index from non-dragging rows
+  const rows = Array.from(container.querySelectorAll('.step-order-row:not(.step-order-dragging)'));
+  let targetIdx = rows.length;
+
+  for (let i = 0; i < rows.length; i++) {
+    const rowRect = rows[i].getBoundingClientRect();
+    const midY = rowRect.top + rowRect.height / 2;
+    if (clientY < midY) {
+      targetIdx = i;
+      break;
+    }
+  }
+
+  // Move placeholder to target position
+  if (targetIdx < rows.length) {
+    container.insertBefore(placeholder, rows[targetIdx]);
+  } else {
+    container.appendChild(placeholder);
+  }
+  _dragState.targetIdx = targetIdx;
+}
+
+function endDrag() {
+  if (!_dragState) return;
+  const { row, ghost, placeholder, currentIdx, targetIdx } = _dragState;
+
+  // Clean up DOM
+  ghost.remove();
+  placeholder.remove();
+  row.classList.remove('step-order-dragging');
+
+  // Adjust target index (account for removed item)
+  let finalIdx = targetIdx;
+  if (finalIdx > currentIdx) finalIdx--;
+
+  // Apply reorder if changed
+  if (finalIdx !== currentIdx) {
+    const [removed] = activeStepIds.splice(currentIdx, 1);
+    activeStepIds.splice(finalIdx, 0, removed);
+    rebuildAfterConfigChange();
+  }
+
+  _dragState = null;
+  buildStepOrderList();
+}
+
 
 // ===========================================
 // Stamp Card
