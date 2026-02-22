@@ -291,6 +291,8 @@ body {
 .step-btn.active {
   border-color: var(--color-primary);
   animation: glowPulse 2s ease infinite;
+  transform: scale(1.08);
+  z-index: 2;
 }
 
 .step-btn.completed {
@@ -327,10 +329,28 @@ body {
 }
 
 .step-icon-img {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   border-radius: 8px;
+  transition: width 0.3s ease, height 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0.5;
+}
+
+/* アクティブステップ: 大きく＋光るエフェクト */
+.step-btn.active .step-icon-img {
+  width: 64px;
+  height: 64px;
+  opacity: 1;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255, 152, 0, 0.5);
+}
+
+/* 完了済みステップ: 中間サイズ */
+.step-btn.completed .step-icon-img {
+  width: 44px;
+  height: 44px;
+  opacity: 0.85;
 }
 
 .step-btn:not(:disabled):hover .step-icon {
@@ -338,16 +358,26 @@ body {
 }
 
 .step-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--color-text);
   text-align: center;
   line-height: 1.2;
   word-break: keep-all;
+  opacity: 0.5;
+  transition: font-size 0.3s ease, opacity 0.3s ease;
+}
+
+/* アクティブステップのラベルを大きく */
+.step-btn.active .step-label {
+  font-size: 0.8rem;
+  opacity: 1;
+  color: var(--color-primary-dark);
 }
 
 .step-btn.completed .step-label {
   color: var(--color-success);
+  opacity: 0.85;
 }
 
 /* ===========================================
@@ -878,6 +908,21 @@ details.setting-section[open]>.setting-section-label::after {
 
   .step-icon {
     font-size: 1.6rem;
+  }
+
+  .step-icon-img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .step-btn.active .step-icon-img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .step-btn.completed .step-icon-img {
+    width: 38px;
+    height: 38px;
   }
 }
 
