@@ -1016,6 +1016,9 @@ function buildStepOrderList() {
 }
 
 function setupDragListeners(container) {
+  // Prevent duplicate listeners (this function is called every rebuild)
+  if (container.dataset.dragReady) return;
+  container.dataset.dragReady = '1';
   // --- Touch events ---
   container.addEventListener('touchstart', (e) => {
     const handle = e.target.closest('.step-order-handle');
