@@ -2,9 +2,10 @@
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
 import './style.css';
-import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress } from './puzzleData.js';
+import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
 import { playStepSound, playGoalSound, startCelebration, animateButtonPress } from './effects.js';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
+import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
 // ===========================================
 // State
@@ -16,6 +17,7 @@ let revealMode = 'jigsaw'; // 'jigsaw' | 'curtain' | 'blur'
 let dayMode = 'weekday'; // 'weekday' | 'holiday'
 let activeStepIds = []; // current active step IDs
 let activeStepDefs = []; // current active step definitions
+let allPuzzles = [...PUZZLES]; // built-in + custom puzzles
 
 const REVEAL_MODES = [
   { id: 'jigsaw', label: '🧩 パズル' },
@@ -79,7 +81,7 @@ const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 // Initialization
 // ===========================================
 let _initialized = false;
-function init() {
+async function init() {
   if (_initialized) return;
   _initialized = true;
   try {
@@ -95,10 +97,14 @@ function init() {
     buildStepBar();
     console.log('[PUZZLE] buildStepBar done, stepButtons:', stepButtons.length);
 
+    // Load custom images from IndexedDB
+    allPuzzles = await getAllPuzzlesWithCustom();
+    console.log('[PUZZLE] allPuzzles loaded:', allPuzzles.length);
+
     // Check for manually selected puzzle
     const override = localStorage.getItem('puzzle-override');
     if (override) {
-      currentPuzzle = PUZZLES.find(p => p.id === override) || getTodayPuzzle();
+      currentPuzzle = allPuzzles.find(p => p.id === override) || getTodayPuzzle();
     } else {
       currentPuzzle = getTodayPuzzle();
     }
@@ -592,7 +598,10 @@ function buildImagePicker() {
   if (!picker) return;
   picker.innerHTML = '';
 
-  PUZZLES.forEach((puzzle) => {
+  allPuzzles.forEach((puzzle) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'image-picker-wrapper';
+
     const btn = document.createElement('button');
     btn.className = 'image-picker-item';
     btn.dataset.puzzleId = puzzle.id;
@@ -614,12 +623,112 @@ function buildImagePicker() {
       switchPuzzle(puzzle.id);
     });
 
-    picker.appendChild(btn);
+    wrapper.appendChild(btn);
+
+    // Add delete button for custom images
+    if (puzzle.isCustom) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'image-delete-btn';
+      delBtn.textContent = '×';
+      delBtn.title = 'さくじょ';
+      delBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleImageDelete(puzzle.id);
+      });
+      wrapper.appendChild(delBtn);
+    }
+
+    picker.appendChild(wrapper);
   });
+
+  // Add upload button (hidden if at max)
+  buildUploadButton(picker);
+}
+
+function buildUploadButton(picker) {
+  const customCount = allPuzzles.filter(p => p.isCustom).length;
+  if (customCount >= MAX_IMAGES) return;
+
+  const uploadBtn = document.createElement('button');
+  uploadBtn.className = 'image-upload-btn';
+  uploadBtn.innerHTML = `<span class="image-upload-icon">📷</span><span>えを ついか</span>`;
+  uploadBtn.addEventListener('click', () => {
+    handleImageUpload();
+  });
+  picker.appendChild(uploadBtn);
+}
+
+function handleImageUpload() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.addEventListener('change', async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    try {
+      // Check count
+      const count = await getImageCount();
+      if (count >= MAX_IMAGES) {
+        alert(`さいだい ${MAX_IMAGES}まい までだよ！`);
+        return;
+      }
+
+      // Ask for name
+      const name = prompt('なまえ を いれてね（ひらがな）', '');
+      if (!name || !name.trim()) return;
+
+      // Resize and save
+      const blob = await resizeImage(file);
+      const id = `img-${Date.now()}`;
+      await saveImage(id, name.trim(), blob);
+
+      // Reload custom images and rebuild picker
+      allPuzzles = await getAllPuzzlesWithCustom();
+      buildImagePicker();
+      console.log('[PUZZLE] Custom image saved:', name.trim());
+    } catch (err) {
+      console.error('[PUZZLE] Image upload failed:', err);
+      alert('がぞう の ほぞん に しっぱい しました');
+    }
+  });
+  input.click();
+}
+
+async function handleImageDelete(puzzleId) {
+  // Extract original ID from 'custom-img-xxx' format
+  const originalId = puzzleId.replace(/^custom-/, '');
+  const puzzle = allPuzzles.find(p => p.id === puzzleId);
+  const name = puzzle ? puzzle.name : '';
+
+  if (!confirm(`「${name}」を さくじょ する？`)) return;
+
+  try {
+    // If currently viewing this puzzle, switch to today's
+    if (currentPuzzle.id === puzzleId) {
+      localStorage.removeItem('puzzle-override');
+      currentPuzzle = getTodayPuzzle();
+      resetProgress();
+      currentStep = -1;
+      loadPuzzleImage();
+    }
+
+    // Revoke object URL
+    if (puzzle && puzzle.image) {
+      URL.revokeObjectURL(puzzle.image);
+    }
+
+    await deleteImage(originalId);
+    allPuzzles = await getAllPuzzlesWithCustom();
+    buildImagePicker();
+    console.log('[PUZZLE] Custom image deleted:', name);
+  } catch (err) {
+    console.error('[PUZZLE] Image delete failed:', err);
+  }
 }
 
 function switchPuzzle(puzzleId) {
-  const newPuzzle = PUZZLES.find(p => p.id === puzzleId);
+  const newPuzzle = allPuzzles.find(p => p.id === puzzleId);
   if (!newPuzzle || newPuzzle.id === currentPuzzle.id) return;
 
   // Save override and reset progress

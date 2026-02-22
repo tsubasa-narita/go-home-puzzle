@@ -2,6 +2,7 @@
  * パズルデータ管理
  * 画像の追加・変更はこのファイルだけ編集すればOK！
  */
+import { getAllImages, toCustomPuzzles } from './imageStore.js';
 
 // ==================================================
 // 📝 画像を追加・変更するにはここを編集してください
@@ -229,4 +230,19 @@ export function loadProgress() {
  */
 export function resetProgress() {
   localStorage.removeItem('puzzle-progress');
+}
+
+/**
+ * ビルトイン + カスタム画像を結合して返す
+ * @returns {Promise<Array>}
+ */
+export async function getAllPuzzlesWithCustom() {
+  try {
+    const customImages = await getAllImages();
+    const customPuzzles = toCustomPuzzles(customImages);
+    return [...PUZZLES, ...customPuzzles];
+  } catch (e) {
+    console.warn('[PUZZLE] カスタム画像の読み込みに失敗:', e);
+    return [...PUZZLES];
+  }
 }
