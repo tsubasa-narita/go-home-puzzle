@@ -291,8 +291,8 @@ body {
 .step-btn.active {
   border-color: var(--color-primary);
   animation: glowPulse 2s ease infinite;
-  transform: scale(1.08);
-  z-index: 2;
+  transform: scale(1.4);
+  z-index: 10;
 }
 
 .step-btn.completed {
@@ -339,11 +339,11 @@ body {
 
 /* アクティブステップ: 大きく＋光るエフェクト */
 .step-btn.active .step-icon-img {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   opacity: 1;
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 16px rgba(255, 152, 0, 0.6);
 }
 
 /* 完了済みステップ: 中間サイズ */
@@ -370,7 +370,7 @@ body {
 
 /* アクティブステップのラベルを大きく */
 .step-btn.active .step-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   opacity: 1;
   color: var(--color-primary-dark);
 }
