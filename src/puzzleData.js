@@ -18,7 +18,7 @@ export const PUZZLES = [
   {
     id: 'komachi',
     name: 'こまち',
-    image: `${BASE}images/komachi.png`,
+    image: `${BASE}images/komachi.jpg`,
     hints: [
       'あかい いろが みえるよ！🔴',
       'でんしゃ かな？ しんかんせん かな？🚄',
@@ -27,7 +27,7 @@ export const PUZZLES = [
   {
     id: 'hayabusa',
     name: 'はやぶさ',
-    image: `${BASE}images/hayabusa.png`,
+    image: `${BASE}images/hayabusa.jpg`,
     hints: [
       'みどりいろ！なにかな？💚',
       'しんかんせん だ！どの しんかんせん？🚅',
@@ -211,6 +211,96 @@ export const PUZZLES = [
     hints: [
       'かっこいい とっきゅう デンシャ！✨',
       'にっこう に いく よ！だ〜れだ？🚄',
+    ],
+  },
+  {
+    id: 'dennentoshi',
+    name: 'でんえんとしせん',
+    image: `${BASE}images/dennentoshi.jpg`,
+    hints: [
+      'みどりいろ の ライン だよ！💚',
+      'しぶや に いく デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'ginza',
+    name: 'ぎんざせん',
+    image: `${BASE}images/ginza.jpg`,
+    hints: [
+      'きいろい でんしゃ！💛',
+      'とうきょう の ちかてつ だよ！🚇',
+    ],
+  },
+  {
+    id: 'odakyu3000',
+    name: 'おだきゅうせん',
+    image: `${BASE}images/odakyu3000.jpg`,
+    hints: [
+      'あおい ライン の デンシャ だよ！💙',
+      'しんじゅく から はこね の ほうに いくよ！🚃',
+    ],
+  },
+  {
+    id: 'romance',
+    name: 'ロマンスカー',
+    image: `${BASE}images/romance.jpg`,
+    hints: [
+      'あか と しろ の かっこいい とっきゅう！🔴⚪',
+      'はこね に いく よ！だ〜れだ？🚄',
+    ],
+  },
+  {
+    id: 'doctor-yellow',
+    name: 'ドクターイエロー',
+    image: `${BASE}images/doctor-yellow.png`,
+    hints: [
+      'きいろい しんかんせん だよ！💛',
+      'みつけると しあわせになれる かも？🚄',
+    ],
+  },
+  {
+    id: 'keihin-tohoku',
+    name: 'けいひんとうほくせん',
+    image: `${BASE}images/keihin-tohoku.png`,
+    hints: [
+      'みずいろ の ライン だよ！🩵',
+      'さいたま から よこはま まで いく デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'shonan-monorail',
+    name: 'しょうなんモノレール',
+    image: `${BASE}images/shonan-monorail.png`,
+    hints: [
+      'ぶらさがって はしる でんしゃ だよ！🎢',
+      'おそら を とんでる みたい！えのしま に いく よ！🚃',
+    ],
+  },
+  {
+    id: 'jr-chuo',
+    name: 'ちゅうおうせん',
+    image: `${BASE}images/jr-chuo.png`,
+    hints: [
+      'オレンジ色 の デンシャ だよ！🍊',
+      'とっきゅう も はしっているよ！しんじゅくから まっすぐスイスイ！🚃',
+    ],
+  },
+  {
+    id: 'jr-sobu',
+    name: 'そうぶせん',
+    image: `${BASE}images/jr-sobu.png`,
+    hints: [
+      'きいろい ライン の デンシャ だよ！💛',
+      'ちば から とうきょう まで いくよ！🚃',
+    ],
+  },
+  {
+    id: 'keikyu',
+    name: 'けいきゅうせん',
+    image: `${BASE}images/keikyu.png`,
+    hints: [
+      'あかい いろ の デンシャ だよ！🔴',
+      'ひこうき に のる 人 も のるよ！ドレミファ って おとが なる かも？🚃',
     ],
   },
 ];
