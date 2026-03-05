@@ -303,6 +303,60 @@ export const PUZZLES = [
       'ひこうき に のる 人 も のるよ！ドレミファ って おとが なる かも？🚃',
     ],
   },
+  {
+    id: 'seibu30000',
+    name: 'せいぶせん 30000けい',
+    image: `${BASE}images/seibu30000.png`,
+    hints: [
+      'きいろい デンシャ だよ！💛',
+      'いけぶくろ や しんじゅく から はしるよ！🚃',
+    ],
+  },
+  {
+    id: 'enoden',
+    name: 'えのでん',
+    image: `${BASE}images/enoden.png`,
+    hints: [
+      'ちいさくて かわいい デンシャ だよ！💚',
+      'うみ の そば を はしるよ！えのしま に いこう！🌊',
+    ],
+  },
+  {
+    id: 'skyliner',
+    name: 'スカイライナー',
+    image: `${BASE}images/skyliner.png`,
+    hints: [
+      'あおい かっこいい とっきゅう だよ！💙',
+      'なりた くうこう に いく デンシャ だよ！✈️',
+    ],
+  },
+  {
+    id: 'kaiji',
+    name: 'とっきゅう かいじ',
+    image: `${BASE}images/kaiji.png`,
+    hints: [
+      'むらさき の ライン が かっこいい！💜',
+      'やまなし の ぶどう の まち に いくよ！🍇',
+    ],
+  },
+  {
+    id: 'sunrise',
+    name: 'サンライズ せと・いずも',
+    image: `${BASE}images/sunrise.png`,
+    hints: [
+      'よる に はしる でんしゃ だよ！🌙',
+      'ねている あいだに とおくまで いくよ！だ〜れだ？🛏️',
+    ],
+  },
+  {
+    id: 'laview',
+    name: 'とっきゅう ラビュー',
+    image: `${BASE}images/laview.png`,
+    hints: [
+      'ぎんいろ で まるい かたち だよ！🥚',
+      'ちちぶ に いく とっきゅう だよ！おやま が きれい！🏔️',
+    ],
+  },
 ];
 
 /**

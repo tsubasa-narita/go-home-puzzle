@@ -26,6 +26,21 @@ const REVEAL_MODES = [
 ];
 
 // ===========================================
+// Timer State
+// ===========================================
+let timerEnabled = false;
+let timerDuration = 180;      // seconds (default 3 min)
+let timerRemaining = 0;
+let timerIntervalId = null;
+let timerPaused = false;
+const TIMER_DOT_COUNT = 10;   // number of dots in timer bar
+const TIMER_DURATIONS = [
+  { seconds: 60, label: '1ぷん' },
+  { seconds: 180, label: '3ぷん' },
+  { seconds: 300, label: '5ぷん' },
+];
+
+// ===========================================
 // Jigsaw Grid Settings
 // ===========================================
 const GRID_SIZE = 4;
@@ -89,6 +104,7 @@ async function init() {
     // Load settings
     revealMode = localStorage.getItem('reveal-mode') || 'jigsaw';
     dayMode = localStorage.getItem('day-mode') || 'weekday';
+    loadTimerConfig();
     loadStepConfig();
     console.log('[PUZZLE] loadStepConfig done, activeStepDefs:', activeStepDefs.length);
 
@@ -121,13 +137,21 @@ async function init() {
     buildStepPicker();
     buildStepOrderList();
     buildDayModeToggle();
+    buildTimerSettings();
 
     // Load the puzzle image
     loadPuzzleImage();
 
     // Setup event listeners
     setupEventListeners();
-    console.log('[PUZZLE] init() complete');
+
+    // Auto-start timer if mid-progress and timer is enabled
+    if (timerEnabled && currentStep >= 0 && currentStep < STEPS.length - 1) {
+      console.log('[TIMER] Auto-starting timer on page load, currentStep:', currentStep);
+      startTimer();
+    }
+
+    console.log('[PUZZLE] init() complete, timerEnabled:', timerEnabled);
   } catch (err) {
     console.error('[PUZZLE] init() ERROR:', err);
   }
@@ -487,6 +511,9 @@ function updateUI() {
 
   // Update image picker selection
   updateImagePickerSelection();
+
+  // Update timer UI
+  updateTimerUI();
 }
 
 // ===========================================
@@ -494,6 +521,7 @@ function updateUI() {
 // ===========================================
 function completeStep(stepIndex) {
   if (stepIndex !== currentStep + 1) return;
+  console.log('[TIMER] completeStep:', stepIndex, 'timerEnabled:', timerEnabled, 'totalSteps:', STEPS.length);
 
   currentStep = stepIndex;
   saveProgressWithId(currentStep);
@@ -513,17 +541,295 @@ function completeStep(stepIndex) {
 
   if (stepIndex === STEPS.length - 1) {
     // Final step: show full image with celebration
+    stopTimer();
+    resetTimerOverlay();
     updateUI();
     awardStamp();
     setTimeout(() => {
       startCelebration();
     }, 500);
   } else {
-    // Normal step
+    // Normal step: start/restart timer
+    resetTimerOverlay();
+    if (timerEnabled) {
+      console.log('[TIMER] Starting timer from completeStep, duration:', timerDuration);
+      startTimer();
+    }
     setTimeout(() => {
       updateUI();
     }, 100);
   }
+}
+
+// ===========================================
+// Timer Functions
+// ===========================================
+function loadTimerConfig() {
+  timerEnabled = localStorage.getItem('timer-enabled') === 'true';
+  const savedDuration = parseInt(localStorage.getItem('timer-duration'), 10);
+  if (savedDuration && TIMER_DURATIONS.some(d => d.seconds === savedDuration)) {
+    timerDuration = savedDuration;
+  }
+}
+
+function saveTimerConfig() {
+  localStorage.setItem('timer-enabled', String(timerEnabled));
+  localStorage.setItem('timer-duration', String(timerDuration));
+}
+
+function startTimer() {
+  console.log('[TIMER] startTimer called, duration:', timerDuration, 'enabled:', timerEnabled);
+  stopTimer();
+  timerRemaining = timerDuration;
+  timerPaused = false;
+  showTimerBar(true);
+  updateTimerUI();
+  updateTimerOverlay();
+  timerIntervalId = setInterval(() => {
+    tickTimer();
+  }, 1000);
+  console.log('[TIMER] Timer started, intervalId:', timerIntervalId, 'remaining:', timerRemaining);
+}
+
+function stopTimer() {
+  if (timerIntervalId) {
+    clearInterval(timerIntervalId);
+    timerIntervalId = null;
+  }
+  timerRemaining = 0;
+  timerPaused = false;
+  showTimerBar(false);
+  // Remove warning class
+  const frame = document.querySelector('.puzzle-frame');
+  if (frame) frame.classList.remove('timer-warning');
+  // Reset pause button
+  const pauseBtn = document.getElementById('timer-pause-btn');
+  if (pauseBtn) {
+    pauseBtn.classList.remove('paused');
+    pauseBtn.textContent = '⏸️';
+  }
+}
+
+function pauseTimer() {
+  if (!timerIntervalId || timerPaused) return;
+  timerPaused = true;
+  clearInterval(timerIntervalId);
+  timerIntervalId = null;
+  const pauseBtn = document.getElementById('timer-pause-btn');
+  if (pauseBtn) {
+    pauseBtn.classList.add('paused');
+    pauseBtn.textContent = '▶️';
+  }
+  // Remove warning while paused
+  const frame = document.querySelector('.puzzle-frame');
+  if (frame) frame.classList.remove('timer-warning');
+}
+
+function resumeTimer() {
+  if (!timerPaused || timerRemaining <= 0) return;
+  timerPaused = false;
+  const pauseBtn = document.getElementById('timer-pause-btn');
+  if (pauseBtn) {
+    pauseBtn.classList.remove('paused');
+    pauseBtn.textContent = '⏸️';
+  }
+  timerIntervalId = setInterval(() => {
+    tickTimer();
+  }, 1000);
+}
+
+function tickTimer() {
+  if (timerPaused) return;
+  timerRemaining--;
+
+  // Warning at 30 seconds or less
+  const frame = document.querySelector('.puzzle-frame');
+  if (timerRemaining <= 30 && timerRemaining > 0) {
+    if (frame) frame.classList.add('timer-warning');
+  } else {
+    if (frame) frame.classList.remove('timer-warning');
+  }
+
+  updateTimerUI();
+  updateTimerOverlay();
+
+  if (timerRemaining <= 0) {
+    // Time's up! Regress one step
+    regressStep();
+  }
+}
+
+/**
+ * パズルオーバーレイの不透明度を更新
+ * タイマー経過に応じてパズルが暗くなっていく
+ */
+function updateTimerOverlay() {
+  const overlay = document.getElementById('timer-overlay');
+  if (!overlay) return;
+
+  if (!timerEnabled || timerRemaining <= 0 || !timerIntervalId) {
+    return; // overlay is reset via resetTimerOverlay
+  }
+
+  const ratio = timerRemaining / timerDuration; // 1.0 → 0.0
+  // Opacity: 0 (full time) → 0.85 (time's up)
+  const opacity = (1 - ratio) * 0.85;
+  overlay.style.opacity = String(opacity);
+
+  // Show ? mark when more than half darkened
+  if (ratio < 0.5) {
+    overlay.classList.add('show-question');
+  } else {
+    overlay.classList.remove('show-question');
+  }
+}
+
+/**
+ * パズルオーバーレイをリセット（透明に戻す）
+ */
+function resetTimerOverlay() {
+  const overlay = document.getElementById('timer-overlay');
+  if (!overlay) return;
+  overlay.style.opacity = '0';
+  overlay.classList.remove('show-question');
+}
+
+function regressStep() {
+  stopTimer();
+
+  if (currentStep < 0) return; // already at start
+
+  // Go back one step
+  currentStep = currentStep - 1;
+  saveProgressWithId(Math.max(currentStep, 0));
+
+  // Re-render
+  renderPuzzle();
+  updateUI();
+
+  // Update message to encourage action
+  if (currentStep >= 0) {
+    const nextLabel = activeStepDefs[currentStep + 1]?.label || 'つぎ';
+    messageText.innerHTML = `⏳ じかんぎれ！<br>${nextLabel} を はやく やろう！`;
+  } else {
+    const firstLabel = activeStepDefs.length > 0 ? activeStepDefs[0].label : '';
+    messageText.innerHTML = `⏳ じかんぎれ！<br>${firstLabel} を はやく やろう！`;
+  }
+
+  // Restart timer if still has steps to do
+  if (currentStep >= 0 && timerEnabled) {
+    startTimer();
+  }
+}
+
+function showTimerBar(visible) {
+  const bar = document.getElementById('timer-bar');
+  if (!bar) return;
+  if (visible && timerEnabled) {
+    bar.classList.remove('hidden');
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+function updateTimerUI() {
+  const dotsContainer = document.getElementById('timer-dots');
+  if (!dotsContainer) return;
+
+  // Only show if timer is active
+  if (!timerEnabled || (timerRemaining <= 0 && !timerIntervalId)) {
+    return;
+  }
+
+  // Build dots if needed
+  if (dotsContainer.children.length !== TIMER_DOT_COUNT) {
+    dotsContainer.innerHTML = '';
+    for (let i = 0; i < TIMER_DOT_COUNT; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'timer-dot';
+      dotsContainer.appendChild(dot);
+    }
+  }
+
+  // Calculate how many dots should be "on"
+  const ratio = timerRemaining / timerDuration;
+  const activeDots = Math.ceil(ratio * TIMER_DOT_COUNT);
+  const warningThreshold = 30 / timerDuration; // 30 seconds
+  const cautionThreshold = 0.5; // 50%
+
+  const dots = dotsContainer.children;
+  for (let i = 0; i < TIMER_DOT_COUNT; i++) {
+    const dot = dots[i];
+    dot.classList.remove('warning', 'danger', 'off');
+
+    if (i >= activeDots) {
+      dot.classList.add('off');
+    } else if (ratio <= warningThreshold) {
+      dot.classList.add('danger');
+    } else if (ratio <= cautionThreshold) {
+      dot.classList.add('warning');
+    }
+    // else: default green (no extra class)
+  }
+}
+
+// ===========================================
+// Timer Settings
+// ===========================================
+function buildTimerSettings() {
+  // Toggle
+  const toggle = document.getElementById('timer-toggle');
+  if (toggle) {
+    toggle.checked = timerEnabled;
+    toggle.addEventListener('change', () => {
+      timerEnabled = toggle.checked;
+      saveTimerConfig();
+      if (!timerEnabled) {
+        stopTimer();
+      } else if (currentStep >= 0 && currentStep < STEPS.length - 1) {
+        // Mid-puzzle: start timer immediately
+        startTimer();
+      }
+      updateTimerDurationPickerState();
+    });
+  }
+
+  // Duration picker
+  const container = document.getElementById('timer-duration-picker');
+  if (!container) return;
+  container.innerHTML = '';
+
+  TIMER_DURATIONS.forEach((dur) => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-picker-item';
+    btn.dataset.seconds = String(dur.seconds);
+    if (dur.seconds === timerDuration) {
+      btn.classList.add('selected');
+    }
+    btn.textContent = dur.label;
+    btn.addEventListener('click', () => {
+      timerDuration = dur.seconds;
+      saveTimerConfig();
+      // Update selection
+      container.querySelectorAll('.mode-picker-item').forEach(b => {
+        b.classList.toggle('selected', b.dataset.seconds === String(timerDuration));
+      });
+      // Restart timer if running
+      if (timerIntervalId || timerPaused) {
+        startTimer();
+      }
+    });
+    container.appendChild(btn);
+  });
+
+  updateTimerDurationPickerState();
+}
+
+function updateTimerDurationPickerState() {
+  const container = document.getElementById('timer-duration-picker');
+  if (!container) return;
+  container.style.opacity = timerEnabled ? '1' : '0.4';
+  container.style.pointerEvents = timerEnabled ? 'auto' : 'none';
 }
 
 // ===========================================
@@ -553,11 +859,22 @@ function setupEventListeners() {
   // Reset
   resetBtn.addEventListener('click', () => {
     resetProgress();
+    stopTimer();
     localStorage.removeItem('puzzle-override');
     currentStep = -1;
     currentPuzzle = getTodayPuzzle();
     loadPuzzleImage();
     settingsModal.classList.add('hidden');
+  });
+
+  // Timer pause button
+  const timerPauseBtn = document.getElementById('timer-pause-btn');
+  timerPauseBtn.addEventListener('click', () => {
+    if (timerPaused) {
+      resumeTimer();
+    } else {
+      pauseTimer();
+    }
   });
 
   // Handle resize
@@ -620,7 +937,7 @@ function buildImagePicker() {
     btn.appendChild(label);
 
     btn.addEventListener('click', () => {
-      switchPuzzle(puzzle.id);
+      showImagePreview(puzzle);
     });
 
     wrapper.appendChild(btn);
@@ -744,6 +1061,76 @@ function updateImagePickerSelection() {
   const items = document.querySelectorAll('.image-picker-item');
   items.forEach(item => {
     item.classList.toggle('selected', item.dataset.puzzleId === currentPuzzle.id);
+  });
+}
+
+// ===========================================
+// Image Preview Modal
+// ===========================================
+function showImagePreview(puzzle) {
+  // Remove existing preview if any
+  const existing = document.getElementById('image-preview-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'image-preview-modal';
+  modal.className = 'image-preview-modal';
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'image-preview-backdrop';
+  backdrop.addEventListener('click', () => modal.remove());
+
+  const content = document.createElement('div');
+  content.className = 'image-preview-content';
+
+  const img = document.createElement('img');
+  img.src = puzzle.image;
+  img.alt = puzzle.name;
+  img.className = 'image-preview-img';
+
+  const name = document.createElement('p');
+  name.className = 'image-preview-name';
+  name.textContent = puzzle.name;
+
+  const btnGroup = document.createElement('div');
+  btnGroup.className = 'image-preview-buttons';
+
+  const isCurrentPuzzle = puzzle.id === currentPuzzle.id;
+
+  const selectBtn = document.createElement('button');
+  selectBtn.className = 'image-preview-select-btn';
+  if (isCurrentPuzzle) {
+    selectBtn.textContent = 'いま この え だよ ✨';
+    selectBtn.disabled = true;
+    selectBtn.classList.add('current');
+  } else {
+    selectBtn.textContent = 'この え にする！';
+    selectBtn.addEventListener('click', () => {
+      modal.remove();
+      switchPuzzle(puzzle.id);
+    });
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'image-preview-close-btn';
+  closeBtn.textContent = 'もどる';
+  closeBtn.addEventListener('click', () => modal.remove());
+
+  btnGroup.appendChild(selectBtn);
+  btnGroup.appendChild(closeBtn);
+
+  content.appendChild(img);
+  content.appendChild(name);
+  content.appendChild(btnGroup);
+
+  modal.appendChild(backdrop);
+  modal.appendChild(content);
+
+  document.body.appendChild(modal);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    modal.classList.add('visible');
   });
 }
 
@@ -878,6 +1265,7 @@ function rebuildAfterConfigChange() {
   buildDynamicSteps();
   buildStepBar();
   resetProgress();
+  stopTimer();
   currentStep = -1;
   renderPuzzle();
   updateUI();
