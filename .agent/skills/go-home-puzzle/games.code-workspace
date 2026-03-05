@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../rescue-game"
+		},
+		{
+			"path": "../../../../station-navi"
+		}
+	],
+	"settings": {}
+}
