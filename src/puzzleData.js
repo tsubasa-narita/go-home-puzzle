@@ -357,6 +357,42 @@ export const PUZZLES = [
       'ちちぶ に いく とっきゅう だよ！おやま が きれい！🏔️',
     ],
   },
+  {
+    id: 'odoriko',
+    name: 'とっきゅう おどりこ',
+    image: `${BASE}images/odoriko.png`,
+    hints: [
+      'しろ と あお の ライン だよ！🌊',
+      'いず に いく とっきゅう だよ！みかん が おいしいね🍊',
+    ],
+  },
+  {
+    id: 'rapi_t',
+    name: 'なんかい ラピート',
+    image: `${BASE}images/rapi_t.png`,
+    hints: [
+      'あおい いろ で まるっこい かたち！🤖',
+      'かんさいくうこう に いく とっきゅう だよ！✈️',
+    ],
+  },
+  {
+    id: 'oimachi',
+    name: 'とうきゅう おおいまちせん',
+    image: `${BASE}images/oimachi.png`,
+    hints: [
+      'オレンジ と きいろ の ライン だよ！🧡💛',
+      'ふたこたまがわ を わたる デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'yurikamome',
+    name: 'ゆりかもめ',
+    image: `${BASE}images/yurikamome.png`,
+    hints: [
+      'タイヤ で はしる よ！🚗',
+      'おだいば を はしる デンシャ だよ！うみ が みえるね🌊',
+    ],
+  },
 ];
 
 /**
