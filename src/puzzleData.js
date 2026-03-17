@@ -393,6 +393,51 @@ export const PUZZLES = [
       'おだいば を はしる デンシャ だよ！うみ が みえるね🌊',
     ],
   },
+  {
+    id: 'arakawa',
+    name: 'とえい あらかわせん（さくらトラム）',
+    image: `${BASE}images/arakawa.png`,
+    hints: [
+      'みち の うえ を はしる デンシャ だよ！🚋',
+      'さくら の き の した を はしる よ！🌸',
+    ],
+  },
+  {
+    id: 'newshuttle',
+    name: 'ニューシャトル',
+    image: `${BASE}images/newshuttle.png`,
+    hints: [
+      'タイヤ で はしる ちいさな デンシャ だよ！🚗',
+      'しんかんせん の よこ を はしる よ！てつどうはくぶつかん に いくね🚄',
+    ],
+  },
+  {
+    id: 'yurakucho',
+    name: 'とうきょうメトロ ゆうらくちょうせん',
+    image: `${BASE}images/yurakucho.png`,
+    hints: [
+      'きいろい ライン の デンシャ だよ！💛',
+      'ちか を はしる よ！いけぶくろ や ゆうらくちょう に いくね🚇',
+    ],
+  },
+  {
+    id: 'fukutoshin',
+    name: 'とうきょうメトロ ふくとしんせん',
+    image: `${BASE}images/fukutoshin.png`,
+    hints: [
+      'ちゃいろ の ライン が もくひょう だよ！🤎',
+      'ちか を はしる よ！しぶや や しんじゅく に いくね🚇',
+    ],
+  },
+  {
+    id: 'oedo',
+    name: 'とえい おおえどせん',
+    image: `${BASE}images/oedo.png`,
+    hints: [
+      'あかむらさき（マゼンタ）の ライン の デンシャ だよ！🩷',
+      'ちか ふかく を はしる よ！ちいさな デンシャ だね🚇',
+    ],
+  },
 ];
 
 /**
