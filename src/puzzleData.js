@@ -438,6 +438,15 @@ export const PUZZLES = [
       'ちか ふかく を はしる よ！ちいさな デンシャ だね🚇',
     ],
   },
+  {
+    id: 'musashikosugi',
+    name: 'むさしこすぎを はしる でんしゃ',
+    image: `${BASE}images/musashikosugi.png`,
+    hints: [
+      'しょうなんしんじゅくライン、よこすかせん、さいきょうせん の ３つ だよ！🚃',
+      'おおきな マンション の よこ を みんないっしょに はしるよ！🏙️',
+    ],
+  },
 ];
 
 /**
