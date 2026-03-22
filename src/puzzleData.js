@@ -447,6 +447,105 @@ export const PUZZLES = [
       'おおきな マンション の よこ を みんないっしょに はしるよ！🏙️',
     ],
   },
+  {
+    id: 'n700s-nozomi',
+    name: 'のぞみ（N700S）',
+    image: `${BASE}images/n700s_nozomi.png`,
+    hints: [
+      'しろくて はやい しんかんせん だよ！🤍',
+      'とうきょう と おおさか を はしるよ！🚄',
+    ],
+  },
+  {
+    id: 'hinotori',
+    name: 'ひのとり',
+    image: `${BASE}images/hinotori.png`,
+    hints: [
+      'まっかっか の かっこいい でんしゃ だよ！🔴',
+      'おおさか や なごや に いく とっきゅう だよ！✨',
+    ],
+  },
+  {
+    id: 'panda-kuroshio',
+    name: 'パンダくろしお',
+    image: `${BASE}images/panda_kuroshio.png`,
+    hints: [
+      'おめめ が まんまる の パンダ だよ！🐼',
+      'わかやま の うみ を はしる とっきゅう だよ！🌊',
+    ],
+  },
+  {
+    id: 'e8-tsubasa',
+    name: 'あたらしい つばさ（E8けい）',
+    image: `${BASE}images/e8_tsubasa.png`,
+    hints: [
+      'むらさきいろ と きいろ の しんかんせん！💜💛',
+      'やまがた に いく あたらしい でんしゃ だよ！🚅',
+    ],
+  },
+  {
+    id: 'hello-kitty-haruka',
+    name: 'ハローキティはるか',
+    image: `${BASE}images/hello_kitty_haruka.png`,
+    hints: [
+      'かわいい リボン が ついている よ！🎀',
+      'かんさいくうこう に いく とっきゅう だよ！✈️',
+    ],
+  },
+  {
+    id: 'hankyu',
+    name: 'はんきゅうでんしゃ',
+    image: `${BASE}images/hankyu.png`,
+    hints: [
+      'ピカピカ の あずきいろ だよ！🟤',
+      'おおさか や きょうと を はしる よ！🚃',
+    ],
+  },
+  {
+    id: 'hayabusa-komachi-renketsu',
+    name: 'れんけつ！はやぶさ と こまち',
+    image: `${BASE}images/hayabusa_komachi_renketsu.png`,
+    hints: [
+      'みどり と あか の しんかんせん が いっしょ！💚❤️',
+      'がっちゃん！って くっついて はしるよ！🚄',
+    ],
+  },
+  {
+    id: 'ochanomizu-crossing',
+    name: 'おちゃのみずえき（３つの でんしゃ）',
+    image: `${BASE}images/ochanomizu_crossing.png`,
+    hints: [
+      'あか、オレンジ、きいろ の でんしゃ が いるよ！🔴🍊💛',
+      'うえ と した で いっしょに はしっていて すごいね！🌉',
+    ],
+  },
+  {
+    id: 'tokyo-station-shinkansen',
+    name: 'とうきょうえき の しんかんせん',
+    image: `${BASE}images/tokyo_station_shinkansen.png`,
+    hints: [
+      'いろんな いろ の しんかんせん が ならんでいるよ！✨',
+      'ここから みんな とおく に しゅっぱつ するよ！🚄',
+    ],
+  },
+  {
+    id: 'nippori-trains',
+    name: 'にっぽりえき の でんしゃまつり',
+    image: `${BASE}images/nippori_trains.png`,
+    hints: [
+      'あお、みどり、みずいろ の でんしゃ が いるよ！💙💚🩵',
+      'せんろ が いっぱい あって ワクワク するね！🛤️',
+    ],
+  },
+  {
+    id: 'doctor-yellow-nozomi',
+    name: 'すれちがう！ドクターイエロー と のぞみ',
+    image: `${BASE}images/doctor_yellow_nozomi.png`,
+    hints: [
+      'きいろい しんかんせん と しろい しんかんせん！💛🤍',
+      'ビュン！って すれちがって かっこいい！🚄',
+    ],
+  },
 ];
 
 /**
