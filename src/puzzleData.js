@@ -546,6 +546,24 @@ export const PUZZLES = [
       'ビュン！って すれちがって かっこいい！🚄',
     ],
   },
+  {
+    id: 'russell-snowplow',
+    name: 'ラッセルしゃ（じょせつしゃ）',
+    image: `${BASE}images/russell_snowplow.png`,
+    hints: [
+      'まっか な いろ の でんしゃ だよ！🔴',
+      'ゆき を いっぱい とばして はしるよ！❄️',
+    ],
+  },
+  {
+    id: 'crossing-cars',
+    name: 'ふみきり と はたらくくるま',
+    image: `${BASE}images/crossing_cars.png`,
+    hints: [
+      'カンカンカン… でんしゃ を まっているね！🚃',
+      'パトカー や しょうぼうしゃ が いるよ！🚓🚒',
+    ],
+  },
 ];
 
 /**
