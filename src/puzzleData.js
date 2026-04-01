@@ -564,6 +564,24 @@ export const PUZZLES = [
       'パトカー や しょうぼうしゃ が いるよ！🚓🚒',
     ],
   },
+  {
+    id: 'cassiopeia-night',
+    name: 'カシオペア（しんだいとっきゅう）',
+    image: `${BASE}images/cassiopeia_night.png`,
+    hints: [
+      'よる に はしる ロマンチック な でんしゃ！🌃',
+      'ねている あいだ に とおく に いくよ！🛏️',
+    ],
+  },
+  {
+    id: 'momotaro-freight',
+    name: 'かもつれっしゃ ももたろう',
+    image: `${BASE}images/momotaro_freight.png`,
+    hints: [
+      'ちからもち な でんしゃ だよ！💪',
+      'にもつ を たくさん はこんでいるね！📦',
+    ],
+  },
 ];
 
 /**
