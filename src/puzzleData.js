@@ -582,6 +582,33 @@ export const PUZZLES = [
       'にもつ を たくさん はこんでいるね！📦',
     ],
   },
+  {
+    id: 'yufuin-no-mori',
+    name: 'とっきゅう ゆふいんのもり',
+    image: `${BASE}images/yufuin_no_mori.png`,
+    hints: [
+      'みどりいろ の おしゃれな レトロ でんしゃ！🌲',
+      'ゆふいん の しぜん の なか を はしるよ！♨️',
+    ],
+  },
+  {
+    id: 'twilight-mizukaze',
+    name: 'トワイライトエクスプレス みずかぜ',
+    image: `${BASE}images/twilight_mizukaze.png`,
+    hints: [
+      'ピカピカ な みどりいろ の でんしゃ だよ！✨',
+      'ごうか な ホテル みたい な でんしゃ！🏨',
+    ],
+  },
+  {
+    id: 'osaka-loop-line',
+    name: 'おおさかかんじょうせん',
+    image: `${BASE}images/osaka_loop_line.png`,
+    hints: [
+      'オレンジいろ の でんしゃ だよ！🍊',
+      'おおさか の まち を ぐるぐる まわるよ！🏯',
+    ],
+  },
 ];
 
 /**
