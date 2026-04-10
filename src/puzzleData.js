@@ -609,6 +609,15 @@ export const PUZZLES = [
       'おおさか の まち を ぐるぐる まわるよ！🏯',
     ],
   },
+  {
+    id: 'e657-hitachi',
+    name: 'とっきゅう ひたち',
+    image: `${BASE}images/e657_hitachi.png`,
+    hints: [
+      'しろ と ピンク の ライン が あるよ！🌸',
+      'うみ の そば を はしる とっきゅう だよ！🌊',
+    ],
+  },
 ];
 
 /**
