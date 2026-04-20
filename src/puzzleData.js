@@ -627,6 +627,33 @@ export const PUZZLES = [
       'とうほく と ほっかいどうを はしる しんかんせん だよ',
     ],
   },
+  {
+    id: 'alfa-x',
+    name: 'ALFA-X',
+    image: `${BASE}images/alfa_x.png`,
+    hints: [
+      'ながい はなの みらいみたいな しんかんせん だよ',
+      'はやく はしるための しけんを する とくべつな でんしゃ だよ',
+    ],
+  },
+  {
+    id: 'e4-max',
+    name: 'E4 Max',
+    image: `${BASE}images/e4_max.png`,
+    hints: [
+      '2かいだての おおきい しんかんせん だよ',
+      'きいろ と あお が めだつ Max の でんしゃ だよ',
+    ],
+  },
+  {
+    id: 'anpanman-train',
+    name: 'アンパンマンれっしゃ',
+    image: `${BASE}images/anpanman_train.png`,
+    hints: [
+      'アンパンマンの なかまたちが いそうな たのしい れっしゃ だよ',
+      'しこく の ほうを はしる にぎやかな れっしゃ だよ',
+    ],
+  },
 ];
 
 /**
