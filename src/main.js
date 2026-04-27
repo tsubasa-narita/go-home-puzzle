@@ -91,6 +91,16 @@ const settingsModal = document.getElementById('settings-modal');
 const closeSettings = document.getElementById('close-settings');
 const resetBtn = document.getElementById('reset-btn');
 const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
+const countQuizModal = document.getElementById('count-quiz-modal');
+const countQuizBackdrop = countQuizModal.querySelector('.modal-backdrop');
+const countQuizPrompt = document.getElementById('count-quiz-prompt');
+const countQuizNote = document.getElementById('count-quiz-note');
+const countQuizChoices = document.getElementById('count-quiz-choices');
+const countQuizFeedback = document.getElementById('count-quiz-feedback');
+const closeCountQuizBtn = document.getElementById('close-count-quiz');
+
+let currentCountQuizOptions = [];
+const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 
 // ===========================================
 // Initialization
@@ -124,6 +134,7 @@ async function init() {
     } else {
       currentPuzzle = getTodayPuzzle();
     }
+    markPuzzleSelected(currentPuzzle.id);
 
     // Load saved progress
     const saved = loadProgress();
@@ -149,6 +160,12 @@ async function init() {
     if (timerEnabled && currentStep >= 0 && currentStep < STEPS.length - 1) {
       console.log('[TIMER] Auto-starting timer on page load, currentStep:', currentStep);
       startTimer();
+    }
+
+    if (currentStep === STEPS.length - 1 && shouldShowCountQuiz()) {
+      setTimeout(() => {
+        showCountQuizModal();
+      }, 600);
     }
 
     console.log('[PUZZLE] init() complete, timerEnabled:', timerEnabled);
@@ -516,6 +533,101 @@ function updateUI() {
   updateTimerUI();
 }
 
+function hasCountQuiz(puzzle = currentPuzzle) {
+  return Boolean(
+    puzzle &&
+    puzzle.countQuiz &&
+    puzzle.countQuiz.enabled &&
+    Number.isInteger(puzzle.countQuiz.answer)
+  );
+}
+
+function buildCountQuizOptions(answer) {
+  const options = answer <= 2 ? [1, 2, 3] : [answer - 1, answer, answer + 1];
+  const unique = [...new Set(options)].filter((value) => value >= 1);
+
+  while (unique.length < 3) {
+    unique.push(unique[unique.length - 1] + 1);
+  }
+
+  for (let i = unique.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [unique[i], unique[j]] = [unique[j], unique[i]];
+  }
+
+  return unique;
+}
+
+function closeCountQuizModal() {
+  countQuizModal.classList.add('hidden');
+  countQuizFeedback.textContent = '';
+  countQuizFeedback.className = 'count-quiz-feedback';
+  countQuizChoices.innerHTML = '';
+  currentCountQuizOptions = [];
+}
+
+function shouldShowCountQuiz() {
+  return hasCountQuiz() && !hasEarnedCountQuizStamp(currentPuzzle.id);
+}
+
+function showCountQuizModal() {
+  if (!shouldShowCountQuiz()) return;
+
+  const quiz = currentPuzzle.countQuiz;
+  currentCountQuizOptions = buildCountQuizOptions(quiz.answer);
+  countQuizPrompt.textContent = quiz.prompt || 'でんしゃは なんだい いたかな？';
+  countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
+  countQuizFeedback.textContent = '';
+  countQuizFeedback.className = 'count-quiz-feedback';
+  countQuizChoices.innerHTML = '';
+
+  currentCountQuizOptions.forEach((choice) => {
+    const button = document.createElement('button');
+    button.className = 'count-quiz-choice';
+    button.type = 'button';
+    button.textContent = String(choice);
+    button.addEventListener('click', () => {
+      answerCountQuiz(choice, button);
+    });
+    countQuizChoices.appendChild(button);
+  });
+
+  countQuizModal.classList.remove('hidden');
+}
+
+function answerCountQuiz(choice, selectedButton) {
+  if (!hasCountQuiz()) return;
+
+  const answer = currentPuzzle.countQuiz.answer;
+  const buttons = Array.from(countQuizChoices.querySelectorAll('.count-quiz-choice'));
+
+  if (choice === answer) {
+    buttons.forEach((button) => {
+      const value = Number(button.textContent);
+      button.disabled = true;
+      button.classList.toggle('correct', value === answer);
+    });
+
+    awardCountQuizStamp();
+    countQuizFeedback.textContent = 'せいかい！ すうじはかせ！';
+    countQuizFeedback.className = 'count-quiz-feedback success';
+    messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
+
+    setTimeout(() => {
+      closeCountQuizModal();
+      startCelebration({ particleCount: 130, spawnLimit: 220, durationMs: 6500 });
+    }, 900);
+    return;
+  }
+
+  selectedButton.classList.add('wrong');
+  setTimeout(() => {
+    selectedButton.classList.remove('wrong');
+  }, 650);
+  countQuizFeedback.textContent = 'おしい！ もういちど みてみよう';
+  countQuizFeedback.className = 'count-quiz-feedback error';
+}
+
 // ===========================================
 // Step Actions
 // ===========================================
@@ -547,6 +659,11 @@ function completeStep(stepIndex) {
     awardStamp();
     setTimeout(() => {
       startCelebration();
+      if (shouldShowCountQuiz()) {
+        setTimeout(() => {
+          showCountQuizModal();
+        }, 900);
+      }
     }, 500);
   } else {
     // Normal step: start/restart timer
@@ -860,6 +977,7 @@ function setupEventListeners() {
   resetBtn.addEventListener('click', () => {
     resetProgress();
     stopTimer();
+    closeCountQuizModal();
     localStorage.removeItem('puzzle-override');
     currentStep = -1;
     currentPuzzle = getTodayPuzzle();
@@ -905,6 +1023,14 @@ function setupEventListeners() {
   stampBackdrop.addEventListener('click', () => {
     stampModal.classList.add('hidden');
   });
+
+  closeCountQuizBtn.addEventListener('click', () => {
+    closeCountQuizModal();
+  });
+
+  countQuizBackdrop.addEventListener('click', () => {
+    closeCountQuizModal();
+  });
 }
 
 // ===========================================
@@ -914,6 +1040,7 @@ function buildImagePicker() {
   const picker = document.getElementById('image-picker');
   if (!picker) return;
   picker.innerHTML = '';
+  const selectedPuzzleIds = getKnownSelectedPuzzleIds();
 
   allPuzzles.forEach((puzzle) => {
     const wrapper = document.createElement('div');
@@ -925,6 +1052,9 @@ function buildImagePicker() {
     if (puzzle.id === currentPuzzle.id) {
       btn.classList.add('selected');
     }
+    if (selectedPuzzleIds.includes(puzzle.id)) {
+      btn.classList.add('previously-selected');
+    }
 
     const img = document.createElement('img');
     img.src = puzzle.image;
@@ -935,6 +1065,13 @@ function buildImagePicker() {
 
     btn.appendChild(img);
     btn.appendChild(label);
+
+    if (selectedPuzzleIds.includes(puzzle.id)) {
+      const badge = document.createElement('span');
+      badge.className = 'image-selected-badge';
+      badge.textContent = 'えらんだ';
+      btn.appendChild(badge);
+    }
 
     btn.addEventListener('click', () => {
       showImagePreview(puzzle);
@@ -960,6 +1097,33 @@ function buildImagePicker() {
 
   // Add upload button (hidden if at max)
   buildUploadButton(picker);
+}
+
+function loadSelectedPuzzleIds() {
+  try {
+    const value = JSON.parse(localStorage.getItem(SELECTED_PUZZLES_KEY));
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSelectedPuzzleIds(puzzleIds) {
+  localStorage.setItem(SELECTED_PUZZLES_KEY, JSON.stringify([...new Set(puzzleIds)]));
+}
+
+function markPuzzleSelected(puzzleId) {
+  if (!puzzleId) return;
+  const selectedPuzzleIds = loadSelectedPuzzleIds();
+  if (selectedPuzzleIds.includes(puzzleId)) return;
+  selectedPuzzleIds.push(puzzleId);
+  saveSelectedPuzzleIds(selectedPuzzleIds);
+}
+
+function getKnownSelectedPuzzleIds() {
+  const selectedPuzzleIds = loadSelectedPuzzleIds();
+  const stampedPuzzleIds = loadStamps().map((stamp) => stamp.puzzleId);
+  return [...new Set([...selectedPuzzleIds, ...stampedPuzzleIds])];
 }
 
 function buildUploadButton(picker) {
@@ -1049,7 +1213,9 @@ function switchPuzzle(puzzleId) {
   if (!newPuzzle || newPuzzle.id === currentPuzzle.id) return;
 
   // Save override and reset progress
+  closeCountQuizModal();
   localStorage.setItem('puzzle-override', puzzleId);
+  markPuzzleSelected(puzzleId);
   resetProgress();
   currentStep = -1;
   currentPuzzle = newPuzzle;
@@ -1059,8 +1225,17 @@ function switchPuzzle(puzzleId) {
 
 function updateImagePickerSelection() {
   const items = document.querySelectorAll('.image-picker-item');
+  const selectedPuzzleIds = getKnownSelectedPuzzleIds();
   items.forEach(item => {
     item.classList.toggle('selected', item.dataset.puzzleId === currentPuzzle.id);
+    const wasSelected = selectedPuzzleIds.includes(item.dataset.puzzleId);
+    item.classList.toggle('previously-selected', wasSelected);
+    if (wasSelected && !item.querySelector('.image-selected-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'image-selected-badge';
+      badge.textContent = 'えらんだ';
+      item.appendChild(badge);
+    }
   });
 }
 
@@ -1092,6 +1267,11 @@ function showImagePreview(puzzle) {
   name.className = 'image-preview-name';
   name.textContent = puzzle.name;
 
+  const selectedNote = document.createElement('p');
+  selectedNote.className = 'image-preview-selected-note';
+  selectedNote.textContent = 'まえに えらんだ え だよ';
+  selectedNote.hidden = !getKnownSelectedPuzzleIds().includes(puzzle.id);
+
   const btnGroup = document.createElement('div');
   btnGroup.className = 'image-preview-buttons';
 
@@ -1121,6 +1301,7 @@ function showImagePreview(puzzle) {
 
   content.appendChild(img);
   content.appendChild(name);
+  content.appendChild(selectedNote);
   content.appendChild(btnGroup);
 
   modal.appendChild(backdrop);
@@ -1542,6 +1723,7 @@ function endDrag() {
 // Stamp Card
 // ===========================================
 const STAMP_KEY = 'puzzle-stamps';
+const COUNT_QUIZ_STAMP_KEY = 'count-quiz-stamps';
 
 function loadStamps() {
   try {
@@ -1553,6 +1735,24 @@ function loadStamps() {
 
 function saveStamps(stamps) {
   localStorage.setItem(STAMP_KEY, JSON.stringify(stamps));
+}
+
+function loadCountQuizStamps() {
+  try {
+    return JSON.parse(localStorage.getItem(COUNT_QUIZ_STAMP_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCountQuizStamps(stamps) {
+  localStorage.setItem(COUNT_QUIZ_STAMP_KEY, JSON.stringify(stamps));
+}
+
+function hasEarnedCountQuizStamp(puzzleId) {
+  const stamps = loadCountQuizStamps();
+  const today = new Date().toISOString().slice(0, 10);
+  return stamps.some((stamp) => stamp.date === today && stamp.puzzleId === puzzleId);
 }
 
 function awardStamp() {
@@ -1570,6 +1770,20 @@ function awardStamp() {
     image: currentPuzzle.image,
   });
   saveStamps(stamps);
+}
+
+function awardCountQuizStamp() {
+  const stamps = loadCountQuizStamps();
+  const today = new Date().toISOString().slice(0, 10);
+  const exists = stamps.some(s => s.date === today && s.puzzleId === currentPuzzle.id);
+  if (exists) return;
+
+  stamps.push({
+    date: today,
+    puzzleId: currentPuzzle.id,
+    puzzleName: currentPuzzle.name,
+  });
+  saveCountQuizStamps(stamps);
 }
 
 function getStreak() {
@@ -1605,6 +1819,7 @@ function getStreak() {
 
 function buildStampGrid() {
   const stamps = loadStamps();
+  const countQuizStamps = loadCountQuizStamps();
   const streakEl = document.getElementById('stamp-streak');
   const gridEl = document.getElementById('stamp-grid');
 
@@ -1621,6 +1836,10 @@ function buildStampGrid() {
     streakEl.style.display = 'block';
   }
 
+  if (countQuizStamps.length > 0) {
+    streakEl.textContent += ` / 123 ${countQuizStamps.length}こ`;
+  }
+
   // Grid
   gridEl.innerHTML = '';
 
@@ -1629,6 +1848,12 @@ function buildStampGrid() {
   reversed.forEach((stamp) => {
     const item = document.createElement('div');
     item.className = 'stamp-item earned';
+    const hasSpecial = countQuizStamps.some((specialStamp) =>
+      specialStamp.date === stamp.date && specialStamp.puzzleId === stamp.puzzleId
+    );
+    if (hasSpecial) {
+      item.classList.add('special-earned');
+    }
 
     const img = document.createElement('img');
     img.className = 'stamp-img';
@@ -1644,6 +1869,14 @@ function buildStampGrid() {
     // Format: MM/DD
     const [, m, d] = stamp.date.split('-');
     date.textContent = `${parseInt(m)}/${parseInt(d)}`;
+
+    if (hasSpecial) {
+      const badge = document.createElement('span');
+      badge.className = 'stamp-special-badge';
+      badge.textContent = '123';
+      badge.title = 'すうじはかせ';
+      item.appendChild(badge);
+    }
 
     item.appendChild(img);
     item.appendChild(name);

@@ -509,6 +509,12 @@ export const PUZZLES = [
       'みどり と あか の しんかんせん が いっしょ！💚❤️',
       'がっちゃん！って くっついて はしるよ！🚄',
     ],
+    countQuiz: {
+      enabled: true,
+      answer: 2,
+      prompt: 'しんかんせんは なんだい いるかな？',
+      note: 'くっついていても 2だい だよ',
+    },
   },
   {
     id: 'ochanomizu-crossing',
@@ -518,6 +524,12 @@ export const PUZZLES = [
       'あか、オレンジ、きいろ の でんしゃ が いるよ！🔴🍊💛',
       'うえ と した で いっしょに はしっていて すごいね！🌉',
     ],
+    countQuiz: {
+      enabled: true,
+      answer: 3,
+      prompt: 'でんしゃは なんだい いたかな？',
+      note: 'うえ と した の でんしゃを かぞえてね',
+    },
   },
   {
     id: 'tokyo-station-shinkansen',
@@ -545,6 +557,12 @@ export const PUZZLES = [
       'きいろい しんかんせん と しろい しんかんせん！💛🤍',
       'ビュン！って すれちがって かっこいい！🚄',
     ],
+    countQuiz: {
+      enabled: true,
+      answer: 2,
+      prompt: 'しんかんせんは なんだい いたかな？',
+      note: 'きいろ と しろ を かぞえてね',
+    },
   },
   {
     id: 'russell-snowplow',
@@ -626,6 +644,12 @@ export const PUZZLES = [
       'みどりいろの はやい でんしゃが 2つ はしっているよ',
       'とうほく と ほっかいどうを はしる しんかんせん だよ',
     ],
+    countQuiz: {
+      enabled: true,
+      answer: 2,
+      prompt: 'しんかんせんは なんだい いるかな？',
+      note: 'E5 と H5 を 1だいずつ かぞえてね',
+    },
   },
   {
     id: 'alfa-x',
@@ -653,6 +677,63 @@ export const PUZZLES = [
       'アンパンマンの なかまたちが いそうな たのしい れっしゃ だよ',
       'しこく の ほうを はしる にぎやかな れっしゃ だよ',
     ],
+  },
+  {
+    id: 'asoboy',
+    name: 'あそぼーい！',
+    image: `${BASE}images/asoboy.png`,
+    hints: [
+      'くろちゃん が いそうな かわいい とっきゅう だよ',
+      'あそ の おやま の ほうを はしる れっしゃ だよ',
+    ],
+  },
+  {
+    id: 'shimakaze-50000',
+    name: 'しまかぜ 50000けい',
+    image: `${BASE}images/shimakaze_50000.png`,
+    hints: [
+      'あお と しろ の ごうかな とっきゅう だよ',
+      'いせしま の うみ の ほうへ はしるよ',
+    ],
+  },
+  {
+    id: 'musky-2000',
+    name: 'ミュースカイ 2000けい',
+    image: `${BASE}images/musky_2000.png`,
+    hints: [
+      'あお と しろ の くうこう とっきゅう だよ',
+      'セントレア の ほうへ ビューンと はしるよ',
+    ],
+  },
+  {
+    id: 'shinkansen-all-stars',
+    name: 'しんかんせん せいぞろい',
+    image: `${BASE}images/shinkansen_all_stars.png`,
+    hints: [
+      'いろんな しんかんせん が ならんでいるよ',
+      'ながい はな、まるい はな、いろんな かたちを みつけてね',
+    ],
+    countQuiz: {
+      enabled: true,
+      answer: 5,
+      prompt: 'しんかんせんは なんだい いるかな？',
+      note: '500けい、N700S、E5、E6、E7 を かぞえてね',
+    },
+  },
+  {
+    id: 'sea-train-festival',
+    name: 'うみの でんしゃまつり',
+    image: `${BASE}images/sea_train_festival.png`,
+    hints: [
+      'うみ の そばに いろんな でんしゃ が あつまったよ',
+      'あおい とっきゅう や ちいさな でんしゃ を みつけてね',
+    ],
+    countQuiz: {
+      enabled: true,
+      answer: 4,
+      prompt: 'でんしゃは なんだい いるかな？',
+      note: 'うみ の そば の でんしゃを ぜんぶ かぞえてね',
+    },
   },
 ];
 

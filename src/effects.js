@@ -157,16 +157,22 @@ let animationId = null;
 /**
  * キラキラエフェクトを開始
  */
-export function startCelebration() {
+export function startCelebration(options = {}) {
     const canvas = document.getElementById('particle-canvas');
     if (!canvas) return;
+
+    const {
+        particleCount = 80,
+        spawnLimit = 150,
+        durationMs = 5000,
+    } = options;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const ctx = canvas.getContext('2d');
 
     particles = [];
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < particleCount; i++) {
         const p = new Particle(canvas);
         p.y = Math.random() * canvas.height * 0.3;
         particles.push(p);
@@ -179,7 +185,7 @@ export function startCelebration() {
 
         // Spawn new particles
         spawnCounter++;
-        if (spawnCounter % 3 === 0 && particles.length < 150) {
+        if (spawnCounter % 3 === 0 && particles.length < spawnLimit) {
             particles.push(new Particle(canvas));
         }
 
@@ -208,7 +214,7 @@ export function startCelebration() {
         }
         particles = [];
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }, 5000);
+    }, durationMs);
 }
 
 /**

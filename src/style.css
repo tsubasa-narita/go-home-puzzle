@@ -458,7 +458,9 @@ body {
 }
 
 .stamp-btn {
-  display: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* TODO: スタンプ機能を有効にする際に削除 */
   position: fixed;
   top: var(--space-md);
@@ -670,6 +672,7 @@ details.setting-section[open]>.setting-section-label::after {
   transition: all 0.2s ease;
   background: none;
   font-family: var(--font-family);
+  position: relative;
 }
 
 .image-picker-item:hover {
@@ -680,6 +683,24 @@ details.setting-section[open]>.setting-section-label::after {
 .image-picker-item.selected {
   border-color: var(--color-primary);
   background: var(--color-primary-light);
+}
+
+.image-picker-item.previously-selected {
+  box-shadow: inset 0 0 0 2px rgba(76, 175, 80, 0.35);
+}
+
+.image-selected-badge {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #66BB6A, #2E7D32);
+  color: var(--color-white);
+  font-size: 0.58rem;
+  font-weight: 900;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
 }
 
 .image-picker-item img {
@@ -816,6 +837,21 @@ details.setting-section[open]>.setting-section-label::after {
   font-weight: 900;
   color: var(--color-primary-dark);
   margin: var(--space-xs) 0 var(--space-md);
+}
+
+.image-preview-selected-note {
+  display: inline-block;
+  margin: calc(var(--space-sm) * -1) 0 var(--space-md);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-success-light);
+  color: #1B5E20;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.image-preview-selected-note[hidden] {
+  display: none;
 }
 
 .image-preview-buttons {
@@ -963,6 +999,89 @@ details.setting-section[open]>.setting-section-label::after {
 
 .modal-close:hover {
   background: var(--color-primary-dark);
+}
+
+/* Count Quiz */
+.count-quiz-content {
+  max-width: 380px;
+}
+
+.count-quiz-prompt {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+.count-quiz-note {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.count-quiz-choices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.count-quiz-choice {
+  min-height: 72px;
+  border: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #FFF8E1, #FFE0B2);
+  color: var(--color-primary-dark);
+  font-family: var(--font-family);
+  font-size: 1.8rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.count-quiz-choice:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.count-quiz-choice:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.count-quiz-choice.correct {
+  background: linear-gradient(135deg, #C8E6C9, #81C784);
+  border-color: var(--color-success);
+  color: #1B5E20;
+}
+
+.count-quiz-choice.wrong {
+  background: linear-gradient(135deg, #FFEBEE, #FFCDD2);
+  border-color: var(--color-accent);
+  color: #B71C1C;
+}
+
+.count-quiz-choice:disabled {
+  opacity: 0.8;
+}
+
+.count-quiz-feedback {
+  min-height: 2.8em;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.count-quiz-feedback.success {
+  color: var(--color-success);
+}
+
+.count-quiz-feedback.error {
+  color: var(--color-accent);
 }
 
 /* ===========================================
@@ -1276,12 +1395,18 @@ details.setting-section[open]>.setting-section-label::after {
   padding: var(--space-xs);
   border-radius: var(--radius-sm);
   text-align: center;
+  position: relative;
 }
 
 .stamp-item.earned {
   background: linear-gradient(135deg, #FFF8E1, #FFECB3);
   box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
   animation: stampPop 0.3s ease-out;
+}
+
+.stamp-item.special-earned {
+  background: linear-gradient(135deg, #FFFDE7, #FFE082);
+  box-shadow: 0 4px 16px rgba(255, 193, 7, 0.45);
 }
 
 .stamp-item.empty {
@@ -1312,6 +1437,22 @@ details.setting-section[open]>.setting-section-label::after {
   font-size: 0.65rem;
   font-weight: 700;
   color: var(--color-text);
+}
+
+.stamp-special-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD54F, #FF9800);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .stamp-empty-text {
