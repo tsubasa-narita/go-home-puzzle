@@ -98,13 +98,15 @@ export function calcRevealCounts(stepCount, totalTiles = 16) {
         if (i === stepCount - 1) {
             counts.push(totalTiles); // last step reveals all
         } else {
-            // Quadratic curve: (i+1)^2 / stepCount^2
-            const ratio = Math.pow((i + 1) / stepCount, 2);
-            let count = Math.max(1, Math.round(totalTiles * ratio));
+            // Ease-in curve with a small early boost so the first stamps feel rewarding.
+            const minFirstReveal = totalTiles >= 25 ? 3 : 2;
+            const ratio = Math.pow((i + 1) / stepCount, 1.55);
+            let count = Math.max(minFirstReveal, Math.round(totalTiles * ratio));
             // Ensure at least 1 more tile than previous step
             if (i > 0 && count <= counts[i - 1]) {
                 count = counts[i - 1] + 1;
             }
+            count = Math.min(count, totalTiles - 1);
             counts.push(count);
         }
     }

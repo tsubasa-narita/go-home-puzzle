@@ -43,7 +43,7 @@ const TIMER_DURATIONS = [
 // ===========================================
 // Jigsaw Grid Settings
 // ===========================================
-const GRID_SIZE = 4;
+const GRID_SIZE = 5;
 const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
 
 // Dynamic steps (rebuilt when step config changes)
@@ -90,6 +90,7 @@ const settingsBtn = document.getElementById('settings-btn');
 const settingsModal = document.getElementById('settings-modal');
 const closeSettings = document.getElementById('close-settings');
 const resetBtn = document.getElementById('reset-btn');
+const resetSelectedFlagsBtn = document.getElementById('reset-selected-flags-btn');
 const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 const countQuizModal = document.getElementById('count-quiz-modal');
 const countQuizBackdrop = countQuizModal.querySelector('.modal-backdrop');
@@ -985,6 +986,12 @@ function setupEventListeners() {
     settingsModal.classList.add('hidden');
   });
 
+  resetSelectedFlagsBtn.addEventListener('click', () => {
+    const shouldReset = confirm('えらんだ しるしを ぜんぶ リセットしますか？');
+    if (!shouldReset) return;
+    resetSelectedPuzzleFlags();
+  });
+
   // Timer pause button
   const timerPauseBtn = document.getElementById('timer-pause-btn');
   timerPauseBtn.addEventListener('click', () => {
@@ -1121,9 +1128,14 @@ function markPuzzleSelected(puzzleId) {
 }
 
 function getKnownSelectedPuzzleIds() {
-  const selectedPuzzleIds = loadSelectedPuzzleIds();
-  const stampedPuzzleIds = loadStamps().map((stamp) => stamp.puzzleId);
-  return [...new Set([...selectedPuzzleIds, ...stampedPuzzleIds])];
+  return loadSelectedPuzzleIds();
+}
+
+function resetSelectedPuzzleFlags() {
+  localStorage.removeItem(SELECTED_PUZZLES_KEY);
+  buildImagePicker();
+  const existingPreview = document.getElementById('image-preview-modal');
+  if (existingPreview) existingPreview.remove();
 }
 
 function buildUploadButton(picker) {

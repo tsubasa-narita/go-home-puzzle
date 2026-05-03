@@ -747,6 +747,30 @@ details.setting-section[open]>.setting-section-label::after {
   border-color: var(--color-primary-dark);
 }
 
+.reset-selected-flags-btn {
+  width: 100%;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border: 2px solid var(--color-success);
+  border-radius: var(--radius-md);
+  background: var(--color-success-light);
+  color: #1B5E20;
+  font-family: var(--font-family);
+  font-size: 0.85rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.reset-selected-flags-btn:hover {
+  background: #A5D6A7;
+  box-shadow: var(--shadow-sm);
+}
+
+.reset-selected-flags-btn:active {
+  transform: scale(0.97);
+}
+
 .image-upload-icon {
   font-size: 1.6rem;
 }
