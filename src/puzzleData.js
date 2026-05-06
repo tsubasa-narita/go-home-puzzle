@@ -304,6 +304,15 @@ export const PUZZLES = [
     ],
   },
   {
+    id: 'keio-5000',
+    name: 'けいおうせん 5000けい',
+    image: `${BASE}images/keio_5000.png`,
+    hints: [
+      'ピンク の ライン と くろい おかお が かっこいい！🩷',
+      'しんじゅく から はしる けいおう の あたらしい でんしゃ だよ！🚃',
+    ],
+  },
+  {
     id: 'seibu30000',
     name: 'せいぶせん 30000けい',
     image: `${BASE}images/seibu30000.png`,
@@ -427,6 +436,51 @@ export const PUZZLES = [
     hints: [
       'ちゃいろ の ライン が もくひょう だよ！🤎',
       'ちか を はしる よ！しぶや や しんじゅく に いくね🚇',
+    ],
+  },
+  {
+    id: 'hibiya',
+    name: 'とうきょうメトロ ひびやせん',
+    image: `${BASE}images/tokyo_metro_hibiya_13000.png`,
+    hints: [
+      'シルバー の からだ に みずいろ の ライン だよ！🩵',
+      'うえの や ぎんざ の ほうを はしる ちかてつ だよ！🚇',
+    ],
+  },
+  {
+    id: 'tozai',
+    name: 'とうきょうメトロ とうざいせん',
+    image: `${BASE}images/tokyo_metro_tozai_15000.png`,
+    hints: [
+      'みずいろ の ライン が すてき だよ！🩵',
+      'とうきょう を よこに ビューンと はしる ちかてつ だよ！🚇',
+    ],
+  },
+  {
+    id: 'chiyoda',
+    name: 'とうきょうメトロ ちよだせん',
+    image: `${BASE}images/tokyo_metro_chiyoda_16000.png`,
+    hints: [
+      'みどり の ライン が めじるし だよ！💚',
+      'おおてまち や おもてさんどう の ほうを はしるよ！🚇',
+    ],
+  },
+  {
+    id: 'hanzomon',
+    name: 'とうきょうメトロ はんぞうもんせん',
+    image: `${BASE}images/tokyo_metro_hanzomon_18000.png`,
+    hints: [
+      'むらさき の ライン の あたらしい でんしゃ だよ！💜',
+      'しぶや や おしあげ の ほうを はしる ちかてつ だよ！🚇',
+    ],
+  },
+  {
+    id: 'namboku',
+    name: 'とうきょうメトロ なんぼくせん',
+    image: `${BASE}images/tokyo_metro_namboku_9000.png`,
+    hints: [
+      'エメラルドグリーン の ライン が めじるし だよ！💚',
+      'めぐろ や あかばねいわぶち の ほうを はしるよ！🚇',
     ],
   },
   {
@@ -625,6 +679,15 @@ export const PUZZLES = [
     hints: [
       'オレンジいろ の でんしゃ だよ！🍊',
       'おおさか の まち を ぐるぐる まわるよ！🏯',
+    ],
+  },
+  {
+    id: 'midosuji-30000',
+    name: 'みどうすじせん 30000けい',
+    image: `${BASE}images/midosuji_30000.png`,
+    hints: [
+      'あかい ライン の ちかてつ だよ！🔴',
+      'おおさか の まんなかを はしる みどうすじせん だよ！🚇',
     ],
   },
   {
