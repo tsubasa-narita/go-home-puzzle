@@ -798,6 +798,60 @@ export const PUZZLES = [
       note: 'うみ の そば の でんしゃを ぜんぶ かぞえてね',
     },
   },
+  {
+    id: 'ueno-tokyo-line',
+    name: 'うえのとうきょうライン',
+    image: `${BASE}images/ueno_tokyo_line.png`,
+    hints: [
+      'オレンジ と みどり の ライン だよ！🧡💚',
+      'とうきょう を たてに はしる デンシャ だよ！🚃',
+    ],
+  },
+  {
+    id: 'keiyo',
+    name: 'けいようせん',
+    image: `${BASE}images/keiyo.png`,
+    hints: [
+      'あかい ライン が めじるし だよ！🔴',
+      'まいはま や うみ の ほうへ はしるよ！🌊',
+    ],
+  },
+  {
+    id: 'tobu-tojo',
+    name: 'とうぶとうじょうせん',
+    image: `${BASE}images/tobu_tojo.png`,
+    hints: [
+      'あおい ライン が すてき だよ！💙',
+      'いけぶくろ から おやま の ほうへ はしるよ！🚃',
+    ],
+  },
+  {
+    id: 'rinkai',
+    name: 'りんかいせん',
+    image: `${BASE}images/rinkai.png`,
+    hints: [
+      'あおい ライン の デンシャ だよ！💙',
+      'おだいば や うみ の ちかくを はしるよ！🌉',
+    ],
+  },
+  {
+    id: 'keihan',
+    name: 'けいはんでんしゃ',
+    image: `${BASE}images/keihan.png`,
+    hints: [
+      'みどり の デンシャ だよ！💚',
+      'きょうと と おおさか を むすぶよ！🚃',
+    ],
+  },
+  {
+    id: 'kintetsu-local',
+    name: 'きんてつでんしゃ',
+    image: `${BASE}images/kintetsu_local.png`,
+    hints: [
+      'あか と しろ の デンシャ だよ！🔴⚪',
+      'なら や おおさか の ほうへ はしるよ！🦌',
+    ],
+  },
 ];
 
 /**

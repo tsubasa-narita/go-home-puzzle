@@ -284,6 +284,70 @@ kawaii style, white background
 ・画像の縦横比は１対１
 ```
 
+#### 電車画像の4デザイン展開テンプレート
+
+「今までとは違うデザイン」「複数の電車をまとめて追加」する場合は、同じ水彩調に寄せすぎず、以下の4スタイルをローテーションで割り当てる。
+いずれも正方形、子ども向け、1枚につき主役の電車は原則1本、文字・ロゴ・透かしなしにする。
+
+| スタイル | 用途 | プロンプト要点 |
+| --- | --- | --- |
+| A: 絵本・水彩風 | やさしく見せたい代表車両 | warm children's picture-book illustration, soft gouache texture, hand-painted edges, bright daytime |
+| B: ペーパークラフト風 | 既存画像との差を強く出したい車両 | 3D paper-craft diorama, layered cardstock, visible paper grain, matte surfaces |
+| C: 夜景・シネマ風 | 地下駅・湾岸・都市感のある車両 | polished semi-realistic digital illustration, cozy dusk or night lights, not dark or scary |
+| D: 3Dトイ風 | 幼児向けの視認性を最優先したい車両 | polished toy miniature 3D render, smooth toy plastic, rounded edges, bright studio lighting |
+
+共通の制約:
+
+```
+Use case: stylized-concept
+Asset type: square children's puzzle train image for go-home-puzzle
+Subject: one recognizable Japanese train, with realistic color bands and front/window shape inspired by the named train
+Composition/framing: square 1:1, front three-quarter view, train large and centered, full train visible, clear silhouette
+Constraints: no text, no watermark, no brand logos, no people, no extra trains unless explicitly requested, child-friendly, preschool puzzle app
+Avoid: photorealistic grime, tiny unreadable details, scary darkness, cropped train nose
+```
+
+在来線・通勤電車をまとめて追加する場合の推奨ローテーション:
+
+| id | 表示名 | スタイル |
+| --- | --- | --- |
+| `ueno-tokyo-line` | うえのとうきょうライン | A |
+| `keiyo` | けいようせん | B |
+| `tsukuba-express` | つくばエクスプレス | D |
+| `rinkai` | りんかいせん | C |
+| `keisei-line` | けいせいせん | A |
+| `tobu-tojo` | とうぶとうじょうせん | D |
+| `keihan` | けいはんでんしゃ | B |
+| `fukutoshin-scene` | めいじんぐうまえ の ふくとしんせん | C |
+| `hanshin` | はんしんでんしゃ | D |
+| `kintetsu-local` | きんてつでんしゃ | A |
+
+#### リアル志向の電車画像テンプレート
+
+リアル志向を採用する場合は、電車だけでなく背景も路線らしい実在感のある町・山・海にする。
+写真そのものではなく、子ども向けアプリで見やすい「清潔な鉄道写真風のリアルデジタルイラスト」を目指す。
+
+共通の制約:
+
+```
+Use case: photorealistic-natural
+Asset type: realistic square train concept for a children's puzzle image
+Style/medium: realistic digital illustration / polished railfan photography look, natural materials and lighting, not cartoon, not fantasy
+Composition/framing: square 1:1, train large and readable, full front visible, route-specific town, mountain, sea, river, or city background
+Constraints: no text, no watermark, no brand logos, no people as main subjects, no extra trains, child-friendly clarity, avoid gritty grime and clutter
+```
+
+採用済みのリアル背景案:
+
+| id | 背景・画角 |
+| --- | --- |
+| `ueno-tokyo-line` | 東京の高架・都会背景、駅撮り寄り |
+| `keiyo` | 東京湾・海沿い背景、少し俯瞰 |
+| `tobu-tojo` | 郊外の町と山並み、夕方の trackside 画角 |
+| `rinkai` | お台場・湾岸・夕景、都市背景 |
+| `keihan` | 京都大阪の川と橋、町並み |
+| `kintetsu-local` | 奈良/大阪エリアの町・山・寺院屋根の気配 |
+
 #### プロンプトの原則
 
 | 原則             | 詳細                                                               |
