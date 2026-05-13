@@ -852,6 +852,78 @@ export const PUZZLES = [
       'なら や おおさか の ほうへ はしるよ！🦌',
     ],
   },
+  {
+    id: 'e2-yamabiko',
+    name: 'E2けい やまびこ',
+    image: `${BASE}images/e2_yamabiko.png`,
+    hints: [
+      'しろい からだに あかい ライン だよ！🔴',
+      'とうほくを はしる しんかんせん だよ！🚄',
+    ],
+  },
+  {
+    id: 'h5-hayabusa',
+    name: 'H5けい はやぶさ',
+    image: `${BASE}images/h5_hayabusa.png`,
+    hints: [
+      'みどり と むらさき の しんかんせん！💚💜',
+      'ほっかいどう の ほうへ はしるよ！🚄',
+    ],
+  },
+  {
+    id: 'w7-hokuriku',
+    name: 'W7けい ほくりくしんかんせん',
+    image: `${BASE}images/w7_hokuriku.png`,
+    hints: [
+      'あお と きんいろ の ライン が あるよ！💙✨',
+      'ほくりく の やま の ほうへ はしるよ！🏔️',
+    ],
+  },
+  {
+    id: 'shinkansen-500',
+    name: '500けい しんかんせん',
+    image: `${BASE}images/shinkansen_500.png`,
+    hints: [
+      'ながくて とがった はな が かっこいい！🚄',
+      'さんようしんかんせんを はしるよ！💙',
+    ],
+  },
+  {
+    id: 'n700a-nozomi',
+    name: 'N700A のぞみ',
+    image: `${BASE}images/n700a_nozomi.png`,
+    hints: [
+      'しろい からだに あおい ライン だよ！💙',
+      'とうきょう と おおさか の あいだを はしるよ！🗻',
+    ],
+  },
+  {
+    id: 'n700-mizuho-sakura',
+    name: 'N700けい みずほ・さくら',
+    image: `${BASE}images/n700_mizuho_sakura.png`,
+    hints: [
+      'しろ と みずいろ の しんかんせん だよ！🩵',
+      'きゅうしゅう の ほうへ はしるよ！🚄',
+    ],
+  },
+  {
+    id: 'kyushu-800-tsubame',
+    name: '800けい つばめ',
+    image: `${BASE}images/kyushu_800_tsubame.png`,
+    hints: [
+      'しろい からだに あかい ライン だよ！🔴',
+      'きゅうしゅう を はしる しんかんせん だよ！🌋',
+    ],
+  },
+  {
+    id: 'kamome-n700s',
+    name: 'かもめ N700S',
+    image: `${BASE}images/kamome_n700s.png`,
+    hints: [
+      'しろ と あか の しんかんせん だよ！🔴',
+      'ながさき の ほうへ はしる かもめ だよ！🌊',
+    ],
+  },
 ];
 
 /**
