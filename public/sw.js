@@ -1,5 +1,5 @@
 // Service Worker for だ〜れだ？パズルラリー
-const CACHE_NAME = 'puzzle-rally-v18';
+const CACHE_NAME = 'puzzle-rally-v19';
 
 self.addEventListener('install', (event) => {
     // 新しいSWを即座にアクティブにする
@@ -20,6 +20,12 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    const requestUrl = event.request.url;
+    if (requestUrl.includes('127.0.0.1:5173') || requestUrl.includes('localhost:5173')) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {

@@ -14,6 +14,7 @@ let currentStep = -1;
 let currentPuzzle = null;
 let puzzleImage = null;
 let revealMode = 'jigsaw'; // 'jigsaw' | 'curtain' | 'blur'
+let pieceShape = 'puzzle'; // 'puzzle' | 'square'
 let dayMode = 'weekday'; // 'weekday' | 'holiday'
 let activeStepIds = []; // current active step IDs
 let activeStepDefs = []; // current active step definitions
@@ -23,6 +24,11 @@ const REVEAL_MODES = [
   { id: 'jigsaw', label: '🧩 パズル' },
   { id: 'curtain', label: '🎭 カーテン' },
   { id: 'blur', label: '🌫️ ぼかし' },
+];
+
+const PIECE_SHAPES = [
+  { id: 'puzzle', label: '🧩 ピース型' },
+  { id: 'square', label: '□ 四角形' },
 ];
 
 // ===========================================
@@ -114,6 +120,10 @@ async function init() {
     console.log('[PUZZLE] init() start');
     // Load settings
     revealMode = localStorage.getItem('reveal-mode') || 'jigsaw';
+    pieceShape = localStorage.getItem('piece-shape') || 'puzzle';
+    if (!PIECE_SHAPES.some((shape) => shape.id === pieceShape)) {
+      pieceShape = 'puzzle';
+    }
     dayMode = localStorage.getItem('day-mode') || 'weekday';
     loadTimerConfig();
     loadStepConfig();
@@ -146,6 +156,7 @@ async function init() {
     // Build pickers
     buildImagePicker();
     buildModePicker();
+    buildPieceShapePicker();
     buildStepPicker();
     buildStepOrderList();
     buildDayModeToggle();
@@ -284,7 +295,12 @@ function drawAllHidden(size) {
   for (let i = 0; i < TOTAL_TILES; i++) {
     const row = Math.floor(i / GRID_SIZE);
     const col = i % GRID_SIZE;
-    drawHiddenTile(col * tileSize, row * tileSize, tileSize);
+    drawHiddenTile(col, row, col * tileSize, row * tileSize, tileSize);
+  }
+  if (pieceShape === 'puzzle') {
+    drawJigsawOutlines(size, tileSize);
+  } else {
+    drawGridLines(size, tileSize);
   }
   // Big question mark in center
   ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
@@ -312,29 +328,38 @@ function drawJigsawReveal(size, revealCount) {
       // Draw revealed tile (image portion)
       ctx.save();
       ctx.beginPath();
-      ctx.rect(x, y, tileSize, tileSize);
+      addTilePath(col, row, x, y, tileSize);
       ctx.clip();
       drawImageCover(size);
       ctx.restore();
     } else {
       // Draw hidden tile
-      drawHiddenTile(x, y, tileSize);
+      drawHiddenTile(col, row, x, y, tileSize);
     }
   }
 
-  // Draw grid lines for visual separation
-  drawGridLines(size, tileSize);
+  // Draw tile outlines for visual separation
+  if (pieceShape === 'puzzle') {
+    drawJigsawOutlines(size, tileSize);
+  } else {
+    drawGridLines(size, tileSize);
+  }
 }
 
 /**
  * 裏面タイルを描画（ダーク＋？マーク）
  */
-function drawHiddenTile(x, y, tileSize) {
+function drawHiddenTile(col, row, x, y, tileSize) {
   const grad = ctx.createLinearGradient(x, y, x + tileSize, y + tileSize);
   grad.addColorStop(0, '#1a1a2e');
   grad.addColorStop(1, '#16213e');
   ctx.fillStyle = grad;
-  ctx.fillRect(x, y, tileSize, tileSize);
+
+  ctx.save();
+  ctx.beginPath();
+  addTilePath(col, row, x, y, tileSize);
+  ctx.fill();
+  ctx.restore();
 
   // Small question mark
   ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
@@ -342,6 +367,77 @@ function drawHiddenTile(x, y, tileSize) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText('？', x + tileSize / 2, y + tileSize / 2);
+}
+
+function addTilePath(col, row, x, y, tileSize) {
+  if (pieceShape === 'square') {
+    ctx.rect(x, y, tileSize, tileSize);
+    return;
+  }
+
+  const tab = tileSize * 0.18;
+  const top = row === 0 ? 0 : -getHorizontalConnector(col, row - 1);
+  const right = col === GRID_SIZE - 1 ? 0 : getVerticalConnector(col, row);
+  const bottom = row === GRID_SIZE - 1 ? 0 : getHorizontalConnector(col, row);
+  const left = col === 0 ? 0 : -getVerticalConnector(col - 1, row);
+
+  ctx.moveTo(x, y);
+  drawHorizontalEdge(x, y, x + tileSize, y, top, tab, 'top');
+  drawVerticalEdge(x + tileSize, y, x + tileSize, y + tileSize, right, tab, 'right');
+  drawHorizontalEdge(x + tileSize, y + tileSize, x, y + tileSize, bottom, tab, 'bottom');
+  drawVerticalEdge(x, y + tileSize, x, y, left, tab, 'left');
+  ctx.closePath();
+}
+
+function getVerticalConnector(col, row) {
+  return ((col * 13 + row * 7 + 3) % 2) === 0 ? 1 : -1;
+}
+
+function getHorizontalConnector(col, row) {
+  return ((col * 5 + row * 11 + 1) % 2) === 0 ? 1 : -1;
+}
+
+function drawHorizontalEdge(x1, y1, x2, y2, connector, tab, side) {
+  const dx = x2 - x1;
+  const out = side === 'top' ? -1 : 1;
+  const bumpY = y1 + out * connector * tab;
+
+  ctx.lineTo(x1 + dx * 0.32, y1);
+  if (connector === 0) {
+    ctx.lineTo(x2, y2);
+    return;
+  }
+  ctx.bezierCurveTo(x1 + dx * 0.38, y1, x1 + dx * 0.38, bumpY, x1 + dx * 0.5, bumpY);
+  ctx.bezierCurveTo(x1 + dx * 0.62, bumpY, x1 + dx * 0.62, y1, x1 + dx * 0.68, y1);
+  ctx.lineTo(x2, y2);
+}
+
+function drawVerticalEdge(x1, y1, x2, y2, connector, tab, side) {
+  const dy = y2 - y1;
+  const out = side === 'right' ? 1 : -1;
+  const bumpX = x1 + out * connector * tab;
+
+  ctx.lineTo(x1, y1 + dy * 0.32);
+  if (connector === 0) {
+    ctx.lineTo(x2, y2);
+    return;
+  }
+  ctx.bezierCurveTo(x1, y1 + dy * 0.38, bumpX, y1 + dy * 0.38, bumpX, y1 + dy * 0.5);
+  ctx.bezierCurveTo(bumpX, y1 + dy * 0.62, x1, y1 + dy * 0.62, x1, y1 + dy * 0.68);
+  ctx.lineTo(x2, y2);
+}
+
+function drawJigsawOutlines(size, tileSize) {
+  ctx.strokeStyle = 'rgba(255, 200, 0, 0.65)';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  for (let i = 0; i < TOTAL_TILES; i++) {
+    const row = Math.floor(i / GRID_SIZE);
+    const col = i % GRID_SIZE;
+    ctx.beginPath();
+    addTilePath(col, row, col * tileSize, row * tileSize, tileSize);
+    ctx.stroke();
+  }
 }
 
 /**
@@ -1362,9 +1458,40 @@ function switchMode(modeId) {
   updateUI();
 
   // Update mode picker selection
-  const items = document.querySelectorAll('.mode-picker-item');
+  const items = document.querySelectorAll('#mode-picker .mode-picker-item');
   items.forEach(item => {
     item.classList.toggle('selected', item.dataset.modeId === revealMode);
+  });
+}
+
+function buildPieceShapePicker() {
+  const container = document.getElementById('piece-shape-picker');
+  if (!container) return;
+  container.innerHTML = '';
+
+  PIECE_SHAPES.forEach((shape) => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-picker-item';
+    btn.dataset.pieceShape = shape.id;
+    if (shape.id === pieceShape) {
+      btn.classList.add('selected');
+    }
+    btn.textContent = shape.label;
+    btn.addEventListener('click', () => {
+      switchPieceShape(shape.id);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function switchPieceShape(shapeId) {
+  if (shapeId === pieceShape) return;
+  pieceShape = shapeId;
+  localStorage.setItem('piece-shape', shapeId);
+  renderPuzzle();
+
+  document.querySelectorAll('#piece-shape-picker .mode-picker-item').forEach(item => {
+    item.classList.toggle('selected', item.dataset.pieceShape === pieceShape);
   });
 }
 
