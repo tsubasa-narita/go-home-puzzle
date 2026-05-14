@@ -1,5 +1,5 @@
 // Service Worker for だ〜れだ？パズルラリー
-const CACHE_NAME = 'puzzle-rally-v19';
+const CACHE_NAME = 'puzzle-rally-v20';
 
 self.addEventListener('install', (event) => {
     // 新しいSWを即座にアクティブにする

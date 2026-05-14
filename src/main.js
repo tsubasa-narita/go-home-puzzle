@@ -15,6 +15,7 @@ let currentPuzzle = null;
 let puzzleImage = null;
 let revealMode = 'jigsaw'; // 'jigsaw' | 'curtain' | 'blur'
 let pieceShape = 'puzzle'; // 'puzzle' | 'square'
+let gridSize = 5; // 5 | 7
 let dayMode = 'weekday'; // 'weekday' | 'holiday'
 let activeStepIds = []; // current active step IDs
 let activeStepDefs = []; // current active step definitions
@@ -29,6 +30,11 @@ const REVEAL_MODES = [
 const PIECE_SHAPES = [
   { id: 'puzzle', label: '🧩 ピース型' },
   { id: 'square', label: '□ 四角形' },
+];
+
+const GRID_SIZE_OPTIONS = [
+  { size: 5, label: '5 x 5' },
+  { size: 7, label: '7 x 7' },
 ];
 
 // ===========================================
@@ -49,8 +55,11 @@ const TIMER_DURATIONS = [
 // ===========================================
 // Jigsaw Grid Settings
 // ===========================================
-const GRID_SIZE = 5;
-const TOTAL_TILES = GRID_SIZE * GRID_SIZE;
+const DEFAULT_GRID_SIZE = 5;
+
+function getTotalTiles() {
+  return gridSize * gridSize;
+}
 
 // Dynamic steps (rebuilt when step config changes)
 let STEPS = [];
@@ -58,7 +67,7 @@ let REVEAL_PERCENTS = [];
 
 function buildDynamicSteps() {
   const count = activeStepDefs.length;
-  const revealCounts = calcRevealCounts(count, TOTAL_TILES);
+  const revealCounts = calcRevealCounts(count, getTotalTiles());
   REVEAL_PERCENTS = calcRevealPercents(count);
 
   STEPS = activeStepDefs.map((stepDef, i) => {
@@ -124,6 +133,10 @@ async function init() {
     if (!PIECE_SHAPES.some((shape) => shape.id === pieceShape)) {
       pieceShape = 'puzzle';
     }
+    gridSize = Number(localStorage.getItem('grid-size')) || DEFAULT_GRID_SIZE;
+    if (!GRID_SIZE_OPTIONS.some((option) => option.size === gridSize)) {
+      gridSize = DEFAULT_GRID_SIZE;
+    }
     dayMode = localStorage.getItem('day-mode') || 'weekday';
     loadTimerConfig();
     loadStepConfig();
@@ -157,6 +170,7 @@ async function init() {
     buildImagePicker();
     buildModePicker();
     buildPieceShapePicker();
+    buildGridSizePicker();
     buildStepPicker();
     buildStepOrderList();
     buildDayModeToggle();
@@ -247,7 +261,7 @@ function getShuffledTileOrder(puzzleId) {
   };
 
   // Fisher-Yates shuffle
-  const tiles = Array.from({ length: TOTAL_TILES }, (_, i) => i);
+  const tiles = Array.from({ length: getTotalTiles() }, (_, i) => i);
   for (let i = tiles.length - 1; i > 0; i--) {
     const j = Math.floor(seededRandom() * (i + 1));
     [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
@@ -291,10 +305,10 @@ function renderPuzzle() {
  * 全タイル裏面（未公開）を描画
  */
 function drawAllHidden(size) {
-  const tileSize = size / GRID_SIZE;
-  for (let i = 0; i < TOTAL_TILES; i++) {
-    const row = Math.floor(i / GRID_SIZE);
-    const col = i % GRID_SIZE;
+  const tileSize = size / gridSize;
+  for (let i = 0; i < getTotalTiles(); i++) {
+    const row = Math.floor(i / gridSize);
+    const col = i % gridSize;
     drawHiddenTile(col, row, col * tileSize, row * tileSize, tileSize);
   }
   if (pieceShape === 'puzzle') {
@@ -314,13 +328,13 @@ function drawAllHidden(size) {
  * ジグソー方式：タイルごとに表/裏を描画
  */
 function drawJigsawReveal(size, revealCount) {
-  const tileSize = size / GRID_SIZE;
+  const tileSize = size / gridSize;
   const tileOrder = getShuffledTileOrder(currentPuzzle.id);
   const revealedSet = new Set(tileOrder.slice(0, revealCount));
 
-  for (let i = 0; i < TOTAL_TILES; i++) {
-    const row = Math.floor(i / GRID_SIZE);
-    const col = i % GRID_SIZE;
+  for (let i = 0; i < getTotalTiles(); i++) {
+    const row = Math.floor(i / gridSize);
+    const col = i % gridSize;
     const x = col * tileSize;
     const y = row * tileSize;
 
@@ -377,8 +391,8 @@ function addTilePath(col, row, x, y, tileSize) {
 
   const tab = tileSize * 0.18;
   const top = row === 0 ? 0 : -getHorizontalConnector(col, row - 1);
-  const right = col === GRID_SIZE - 1 ? 0 : getVerticalConnector(col, row);
-  const bottom = row === GRID_SIZE - 1 ? 0 : getHorizontalConnector(col, row);
+  const right = col === gridSize - 1 ? 0 : getVerticalConnector(col, row);
+  const bottom = row === gridSize - 1 ? 0 : getHorizontalConnector(col, row);
   const left = col === 0 ? 0 : -getVerticalConnector(col - 1, row);
 
   ctx.moveTo(x, y);
@@ -431,9 +445,9 @@ function drawJigsawOutlines(size, tileSize) {
   ctx.strokeStyle = 'rgba(255, 200, 0, 0.65)';
   ctx.lineWidth = 2;
   ctx.lineJoin = 'round';
-  for (let i = 0; i < TOTAL_TILES; i++) {
-    const row = Math.floor(i / GRID_SIZE);
-    const col = i % GRID_SIZE;
+  for (let i = 0; i < getTotalTiles(); i++) {
+    const row = Math.floor(i / gridSize);
+    const col = i % gridSize;
     ctx.beginPath();
     addTilePath(col, row, col * tileSize, row * tileSize, tileSize);
     ctx.stroke();
@@ -446,7 +460,7 @@ function drawJigsawOutlines(size, tileSize) {
 function drawGridLines(size, tileSize) {
   ctx.strokeStyle = 'rgba(255, 200, 0, 0.5)';
   ctx.lineWidth = 2;
-  for (let i = 1; i < GRID_SIZE; i++) {
+  for (let i = 1; i < gridSize; i++) {
     // Vertical
     ctx.beginPath();
     ctx.moveTo(i * tileSize, 0);
@@ -1492,6 +1506,42 @@ function switchPieceShape(shapeId) {
 
   document.querySelectorAll('#piece-shape-picker .mode-picker-item').forEach(item => {
     item.classList.toggle('selected', item.dataset.pieceShape === pieceShape);
+  });
+}
+
+function buildGridSizePicker() {
+  const container = document.getElementById('grid-size-picker');
+  if (!container) return;
+  container.innerHTML = '';
+
+  GRID_SIZE_OPTIONS.forEach((option) => {
+    const btn = document.createElement('button');
+    btn.className = 'mode-picker-item';
+    btn.dataset.gridSize = String(option.size);
+    if (option.size === gridSize) {
+      btn.classList.add('selected');
+    }
+    btn.textContent = option.label;
+    btn.addEventListener('click', () => {
+      switchGridSize(option.size);
+    });
+    container.appendChild(btn);
+  });
+}
+
+function switchGridSize(size) {
+  if (size === gridSize) return;
+  gridSize = size;
+  localStorage.setItem('grid-size', String(size));
+
+  buildDynamicSteps();
+  resetProgress();
+  currentStep = -1;
+  renderPuzzle();
+  updateUI();
+
+  document.querySelectorAll('#grid-size-picker .mode-picker-item').forEach(item => {
+    item.classList.toggle('selected', Number(item.dataset.gridSize) === gridSize);
   });
 }
 
