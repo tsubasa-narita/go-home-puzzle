@@ -924,6 +924,69 @@ export const PUZZLES = [
       'ながさき の ほうへ はしる かもめ だよ！🌊',
     ],
   },
+  {
+    id: 'doctor-s',
+    name: 'ドクターS',
+    image: `${BASE}images/doctor_s.png`,
+    hints: [
+      'きいろい あたらしい けんさ の しんかんせん！💛',
+      'せんろ を しらべる とくべつな でんしゃ だよ！🚄',
+    ],
+  },
+  {
+    id: 'e10-shinkansen',
+    name: 'E10けい しんかんせん',
+    image: `${BASE}images/e10_shinkansen.png`,
+    hints: [
+      'みらい みたいな しんかんせん だよ！✨',
+      'ながい はな で ビューンと はしりそう！🚄',
+    ],
+  },
+  {
+    id: 'e8-tsubasa-snow',
+    name: 'ゆきの つばさ（E8けい）',
+    image: `${BASE}images/e8_tsubasa_snow.png`,
+    hints: [
+      'むらさき と きいろ の しんかんせん！💜💛',
+      'ゆき の なかを やまがたへ はしるよ！❄️',
+    ],
+  },
+  {
+    id: 'n700s-kamome-rainbow',
+    name: 'にじの かもめ N700S',
+    image: `${BASE}images/n700s_kamome_rainbow.png`,
+    hints: [
+      'しろ と あか の しんかんせん だよ！🔴',
+      'にじ の そばを ながさきへ はしるよ！🌈',
+    ],
+  },
+  {
+    id: 'tokyo-metro-17000',
+    name: 'とうきょうメトロ 17000けい',
+    image: `${BASE}images/tokyo_metro_17000.png`,
+    hints: [
+      'きいろ と ちゃいろ の ライン が あるよ！💛',
+      'ちか を はしって いけぶくろ の ほうへ いくよ！🚇',
+    ],
+  },
+  {
+    id: 'keikyu-1000-le-ciel',
+    name: 'けいきゅう 1000けい ル・シエル',
+    image: `${BASE}images/keikyu_1000_le_ciel.png`,
+    hints: [
+      'あかい けいきゅう の デンシャ だよ！🔴',
+      'とくべつな なまえ の かっこいい でんしゃ！✨',
+    ],
+  },
+  {
+    id: 'sotetsu-13000',
+    name: 'そうてつ 13000けい',
+    image: `${BASE}images/sotetsu_13000.png`,
+    hints: [
+      'ネイビーブルー が かっこいい デンシャ だよ！💙',
+      'よこはま の ほうへ はしる そうてつせん だよ！🚃',
+    ],
+  },
 ];
 
 /**
