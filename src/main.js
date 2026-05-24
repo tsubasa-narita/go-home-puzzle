@@ -109,6 +109,8 @@ const resetSelectedFlagsBtn = document.getElementById('reset-selected-flags-btn'
 const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 const countQuizModal = document.getElementById('count-quiz-modal');
 const countQuizBackdrop = countQuizModal.querySelector('.modal-backdrop');
+const countQuizContent = countQuizModal.querySelector('.count-quiz-content');
+const countQuizImage = document.getElementById('count-quiz-image');
 const countQuizPrompt = document.getElementById('count-quiz-prompt');
 const countQuizNote = document.getElementById('count-quiz-note');
 const countQuizChoices = document.getElementById('count-quiz-choices');
@@ -116,7 +118,9 @@ const countQuizFeedback = document.getElementById('count-quiz-feedback');
 const closeCountQuizBtn = document.getElementById('close-count-quiz');
 
 let currentCountQuizOptions = [];
+let countQuizAttempts = 0;
 const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
+const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
 
 // ===========================================
 // Initialization
@@ -653,13 +657,14 @@ function hasCountQuiz(puzzle = currentPuzzle) {
   );
 }
 
-function buildCountQuizOptions(answer) {
-  const options = answer <= 2 ? [1, 2, 3] : [answer - 1, answer, answer + 1];
-  const unique = [...new Set(options)].filter((value) => value >= 1);
-
-  while (unique.length < 3) {
-    unique.push(unique[unique.length - 1] + 1);
-  }
+function buildCountQuizOptions(quiz) {
+  const answer = quiz.answer;
+  const baseOptions = Array.isArray(quiz.choices) && quiz.choices.length > 0
+    ? quiz.choices
+    : [1, 2, 3, 4, 5];
+  const unique = [...new Set([...baseOptions, answer])]
+    .map((value) => Number(value))
+    .filter((value) => Number.isInteger(value) && value >= 1);
 
   for (let i = unique.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -671,21 +676,34 @@ function buildCountQuizOptions(answer) {
 
 function closeCountQuizModal() {
   countQuizModal.classList.add('hidden');
+  countQuizContent.classList.remove('success');
+  countQuizImage.removeAttribute('src');
+  countQuizImage.alt = '';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
+  countQuizAttempts = 0;
 }
 
 function shouldShowCountQuiz() {
   return hasCountQuiz() && !hasEarnedCountQuizStamp(currentPuzzle.id);
 }
 
+function setCountQuizImage() {
+  if (!currentPuzzle?.image) return;
+  countQuizImage.setAttribute('src', currentPuzzle.image);
+  countQuizImage.setAttribute('alt', currentPuzzle.name);
+}
+
 function showCountQuizModal() {
   if (!shouldShowCountQuiz()) return;
 
   const quiz = currentPuzzle.countQuiz;
-  currentCountQuizOptions = buildCountQuizOptions(quiz.answer);
+  countQuizAttempts = 0;
+  currentCountQuizOptions = buildCountQuizOptions(quiz);
+  countQuizContent.classList.remove('success');
+  setCountQuizImage();
   countQuizPrompt.textContent = quiz.prompt || 'でんしゃは なんだい いたかな？';
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
   countQuizFeedback.textContent = '';
@@ -704,12 +722,15 @@ function showCountQuizModal() {
   });
 
   countQuizModal.classList.remove('hidden');
+  requestAnimationFrame(setCountQuizImage);
+  setTimeout(setCountQuizImage, 60);
 }
 
 function answerCountQuiz(choice, selectedButton) {
   if (!hasCountQuiz()) return;
 
-  const answer = currentPuzzle.countQuiz.answer;
+  const quiz = currentPuzzle.countQuiz;
+  const answer = quiz.answer;
   const buttons = Array.from(countQuizChoices.querySelectorAll('.count-quiz-choice'));
 
   if (choice === answer) {
@@ -720,22 +741,31 @@ function answerCountQuiz(choice, selectedButton) {
     });
 
     awardCountQuizStamp();
-    countQuizFeedback.textContent = 'せいかい！ すうじはかせ！';
+    countQuizContent.classList.add('success');
+    countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
     messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
+    startCelebration({ particleCount: 160, spawnLimit: 240, durationMs: 7000 });
 
     setTimeout(() => {
       closeCountQuizModal();
-      startCelebration({ particleCount: 130, spawnLimit: 220, durationMs: 6500 });
-    }, 900);
+    }, 1800);
     return;
   }
 
   selectedButton.classList.add('wrong');
+  countQuizAttempts += 1;
   setTimeout(() => {
     selectedButton.classList.remove('wrong');
   }, 650);
-  countQuizFeedback.textContent = 'おしい！ もういちど みてみよう';
+
+  if (countQuizAttempts === 1) {
+    countQuizFeedback.textContent = quiz.hint || 'おしい！ もういちど かぞえてみよう';
+  } else if (countQuizAttempts === 2) {
+    countQuizFeedback.textContent = `こたえは ${answer} だよ。もういちど おしてみよう！`;
+  } else {
+    countQuizFeedback.textContent = `いっしょに かぞえよう。${answer} を おしてね！`;
+  }
   countQuizFeedback.className = 'count-quiz-feedback error';
 }
 
@@ -1158,8 +1188,34 @@ function buildImagePicker() {
   if (!picker) return;
   picker.innerHTML = '';
   const selectedPuzzleIds = getKnownSelectedPuzzleIds();
+  const showQuizOnly = localStorage.getItem(QUIZ_ONLY_PICKER_KEY) === 'true';
+  const visiblePuzzles = showQuizOnly
+    ? allPuzzles.filter((puzzle) => hasCountQuiz(puzzle))
+    : allPuzzles;
 
-  allPuzzles.forEach((puzzle) => {
+  const filterRow = document.createElement('div');
+  filterRow.className = 'image-picker-filter';
+
+  const filterLabel = document.createElement('label');
+  filterLabel.className = 'image-picker-quiz-toggle';
+
+  const filterInput = document.createElement('input');
+  filterInput.type = 'checkbox';
+  filterInput.checked = showQuizOnly;
+  filterInput.addEventListener('change', () => {
+    localStorage.setItem(QUIZ_ONLY_PICKER_KEY, String(filterInput.checked));
+    buildImagePicker();
+  });
+
+  const filterText = document.createElement('span');
+  filterText.textContent = 'かぞえるクイズつきだけ表示';
+
+  filterLabel.appendChild(filterInput);
+  filterLabel.appendChild(filterText);
+  filterRow.appendChild(filterLabel);
+  picker.appendChild(filterRow);
+
+  visiblePuzzles.forEach((puzzle) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'image-picker-wrapper';
 
@@ -1182,6 +1238,14 @@ function buildImagePicker() {
 
     btn.appendChild(img);
     btn.appendChild(label);
+
+    if (hasCountQuiz(puzzle)) {
+      const quizBadge = document.createElement('span');
+      quizBadge.className = 'image-quiz-badge';
+      quizBadge.textContent = '123';
+      quizBadge.title = 'かぞえるクイズつき';
+      btn.appendChild(quizBadge);
+    }
 
     if (selectedPuzzleIds.includes(puzzle.id)) {
       const badge = document.createElement('span');
