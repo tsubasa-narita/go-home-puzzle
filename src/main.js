@@ -122,6 +122,8 @@ let currentCountQuizOptions = [];
 let countQuizAttempts = 0;
 const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
+const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
+const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
 
 // ===========================================
 // Initialization
@@ -686,6 +688,7 @@ function closeCountQuizModal() {
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
   countQuizAttempts = 0;
+  closeCountQuizBtn.textContent = COUNT_QUIZ_CLOSE_LABEL;
 }
 
 function shouldShowCountQuiz() {
@@ -711,6 +714,7 @@ function showCountQuizModal() {
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
   countQuizNumberBadge.textContent = String(quiz.answer);
+  closeCountQuizBtn.textContent = COUNT_QUIZ_CLOSE_LABEL;
   countQuizChoices.innerHTML = '';
 
   currentCountQuizOptions.forEach((choice) => {
@@ -749,11 +753,8 @@ function answerCountQuiz(choice, selectedButton) {
     countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
     messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
-    startCelebration({ particleCount: 260, spawnLimit: 360, durationMs: 8500 });
-
-    setTimeout(() => {
-      closeCountQuizModal();
-    }, 3200);
+    closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
+    startCelebration({ particleCount: 320, spawnLimit: 420, durationMs: 11000 });
     return;
   }
 

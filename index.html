@@ -144,13 +144,16 @@
         <p id="count-quiz-note" class="count-quiz-note">みえている でんしゃを かぞえてね</p>
         <div id="count-quiz-choices" class="count-quiz-choices"></div>
         <p id="count-quiz-feedback" class="count-quiz-feedback"></p>
-        <div class="count-quiz-reward" aria-hidden="true">
+        <div class="count-quiz-reward" role="status" aria-live="polite">
           <div class="count-quiz-hanamaru">はなまる！</div>
           <div class="count-quiz-number-badge">
             <span id="count-quiz-number-badge">?</span>
             <small>だい</small>
           </div>
+          <p class="count-quiz-reward-title">ごほうびでんしゃ、しゅっぱつ！</p>
+          <p class="count-quiz-reward-note">はなまる と すうじバッジを ゲットしたよ</p>
           <div class="count-quiz-train-runner">
+            <div class="count-quiz-track" aria-hidden="true"></div>
             <img src="images/quiz_train_parade.png" alt="" />
           </div>
         </div>
@@ -161,7 +164,7 @@
     <!-- Particle canvas for celebration -->
     <canvas id="particle-canvas" class="particle-canvas"></canvas>
   </div>
-  <script type="module" src="/src/main.js?v=23"></script>
+  <script type="module" src="/src/main.js?v=24"></script>
 </body>
 
 </html>
