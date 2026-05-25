@@ -115,6 +115,7 @@ const countQuizPrompt = document.getElementById('count-quiz-prompt');
 const countQuizNote = document.getElementById('count-quiz-note');
 const countQuizChoices = document.getElementById('count-quiz-choices');
 const countQuizFeedback = document.getElementById('count-quiz-feedback');
+const countQuizNumberBadge = document.getElementById('count-quiz-number-badge');
 const closeCountQuizBtn = document.getElementById('close-count-quiz');
 
 let currentCountQuizOptions = [];
@@ -681,6 +682,7 @@ function closeCountQuizModal() {
   countQuizImage.alt = '';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
+  countQuizNumberBadge.textContent = '?';
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
   countQuizAttempts = 0;
@@ -708,6 +710,7 @@ function showCountQuizModal() {
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
+  countQuizNumberBadge.textContent = String(quiz.answer);
   countQuizChoices.innerHTML = '';
 
   currentCountQuizOptions.forEach((choice) => {
@@ -742,14 +745,15 @@ function answerCountQuiz(choice, selectedButton) {
 
     awardCountQuizStamp();
     countQuizContent.classList.add('success');
+    countQuizNumberBadge.textContent = String(answer);
     countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
     messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
-    startCelebration({ particleCount: 160, spawnLimit: 240, durationMs: 7000 });
+    startCelebration({ particleCount: 260, spawnLimit: 360, durationMs: 8500 });
 
     setTimeout(() => {
       closeCountQuizModal();
-    }, 1800);
+    }, 3200);
     return;
   }
 
