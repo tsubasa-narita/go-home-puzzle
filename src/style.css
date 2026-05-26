@@ -1284,16 +1284,84 @@ details.setting-section[open]>.setting-section-label::after {
   transform: translateY(8px);
 }
 
-.count-quiz-train-runner img {
-  display: block;
+.mini-train-parade {
   position: absolute;
   left: 50%;
-  bottom: 20px;
-  width: min(94%, 420px);
-  height: auto;
-  max-width: none;
+  bottom: 26px;
+  display: flex;
+  align-items: flex-end;
+  gap: 7px;
   transform: translateX(-50%);
   filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.22));
+}
+
+.mini-train-car {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 42px;
+  border: 3px solid #263238;
+  border-radius: 18px 18px 9px 9px;
+  background: #ECEFF1;
+  box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.14);
+}
+
+.mini-train-car::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 8px;
+  height: 15px;
+  border: 2px solid #263238;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #B3E5FC, #1976D2);
+}
+
+.mini-train-car::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -8px;
+  height: 10px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 16px 5px, #212121 0 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 16px) 5px, #212121 0 5px, transparent 6px);
+}
+
+.mini-train-yamanote {
+  border-color: #33691E;
+  background: linear-gradient(180deg, #F5F5F5 0 55%, #8BC34A 56% 72%, #ECEFF1 73%);
+}
+
+.mini-train-chuo {
+  border-color: #E65100;
+  background: linear-gradient(180deg, #FFFFFF 0 55%, #FF9800 56% 72%, #ECEFF1 73%);
+}
+
+.mini-train-keikyu {
+  border-color: #B71C1C;
+  background: linear-gradient(180deg, #F44336 0 58%, #FFFFFF 59% 70%, #D32F2F 71%);
+}
+
+.mini-train-tokyu {
+  border-color: #455A64;
+  background: linear-gradient(180deg, #ECEFF1 0 55%, #E53935 56% 68%, #CFD8DC 69%);
+}
+
+.mini-train-romancecar {
+  width: 78px;
+  border-radius: 28px 34px 12px 12px;
+  border-color: #B71C1C;
+  background: linear-gradient(180deg, #F44336 0 68%, #FFFFFF 69% 78%, #D32F2F 79%);
+}
+
+.mini-train-romancecar::before {
+  left: 12px;
+  right: 14px;
+  border-radius: 14px 18px 8px 8px;
 }
 
 .count-quiz-track {
@@ -1322,7 +1390,7 @@ details.setting-section[open]>.setting-section-label::after {
   animation: rewardStageAppear 0.7s ease 0.35s forwards;
 }
 
-.count-quiz-content.success .count-quiz-train-runner img {
+.count-quiz-content.success .mini-train-parade {
   animation: miniTrainParade 2.8s ease-in-out 0.7s infinite;
 }
 
