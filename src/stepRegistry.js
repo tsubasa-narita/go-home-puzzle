@@ -55,6 +55,20 @@ export const ALL_STEPS = [
         goalMsg: 'ごはん たべたね！',
     },
     {
+        id: 'pikkarin',
+        label: 'ぴっかりん',
+        icon: `${BASE}images/icon-pikkarin.png`,
+        emoji: '✨',
+        goalMsg: 'ぴっかりん！ぜんぶ たべたね！',
+    },
+    {
+        id: 'cleanup',
+        label: 'かたづけ',
+        icon: `${BASE}images/icon-cleanup.png`,
+        emoji: '🧸',
+        goalMsg: 'かたづけ できたね！',
+    },
+    {
         id: 'dress',
         label: 'おきがえ',
         icon: `${BASE}images/icon-change-clothes.jpg`,
