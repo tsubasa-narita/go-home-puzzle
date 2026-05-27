@@ -27,6 +27,13 @@ export const ALL_STEPS = [
         goalMsg: 'おうちに ついたよ！',
     },
     {
+        id: 'handwash',
+        label: 'てあらい',
+        icon: `${BASE}images/icon-handwash.png`,
+        emoji: '🫧',
+        goalMsg: 'てあらい できたね！',
+    },
+    {
         id: 'bath',
         label: 'おふろ',
         icon: `${BASE}images/icon-bath.jpg`,
@@ -88,6 +95,13 @@ export const ALL_STEPS = [
         icon: `${BASE}images/icon-nap.jpg`,
         emoji: '💤',
         goalMsg: 'おひるね できたね！',
+    },
+    {
+        id: 'hug',
+        label: 'ぎゅー',
+        icon: `${BASE}images/icon-hug.png`,
+        emoji: '🤗',
+        goalMsg: 'ぎゅー できたね！',
     },
 ];
 
