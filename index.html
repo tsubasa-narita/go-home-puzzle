@@ -145,32 +145,55 @@
         <div id="count-quiz-choices" class="count-quiz-choices"></div>
         <p id="count-quiz-feedback" class="count-quiz-feedback"></p>
         <div class="count-quiz-reward" role="status" aria-live="polite">
-          <div class="count-quiz-hanamaru">はなまる！</div>
           <div class="count-quiz-number-badge">
             <span id="count-quiz-number-badge">?</span>
-            <small>だい</small>
+            <small>ピース</small>
           </div>
-          <p class="count-quiz-reward-title">ごほうびでんしゃ、しゅっぱつ！</p>
-          <p class="count-quiz-reward-note">はなまる と すうじバッジを ゲットしたよ</p>
-          <div class="count-quiz-train-runner">
-            <div class="count-quiz-track" aria-hidden="true"></div>
-            <div class="mini-train-parade" aria-hidden="true">
-              <span class="mini-train-car mini-train-yamanote"></span>
-              <span class="mini-train-car mini-train-chuo"></span>
-              <span class="mini-train-car mini-train-keikyu"></span>
-              <span class="mini-train-car mini-train-tokyu"></span>
-              <span class="mini-train-car mini-train-romancecar"></span>
-            </div>
-          </div>
+          <p id="count-quiz-reward-title" class="count-quiz-reward-title">スペシャルでんしゃの ピースを ゲット！</p>
+          <p id="count-quiz-reward-note" class="count-quiz-reward-note">ぜんぶ あつめると でんしゃが はしるよ</p>
+          <div id="special-train-mini-board" class="special-train-mini-board" aria-hidden="true"></div>
+          <p id="special-train-progress" class="special-train-progress">0 / 6</p>
         </div>
         <button class="modal-close" id="close-count-quiz">あとでみる</button>
       </div>
     </div>
 
+    <!-- Special train completion celebration -->
+    <div id="special-train-complete" class="special-train-complete hidden" role="dialog" aria-modal="true"
+      aria-labelledby="special-train-complete-title">
+      <div class="special-train-sky" aria-hidden="true"></div>
+      <div class="special-train-complete-stage">
+        <div class="special-train-complete-copy">
+          <h2 id="special-train-complete-title">スペシャルでんしゃ かんせい！</h2>
+          <p>しゅっぱつしんこう！</p>
+        </div>
+        <div class="special-train-puzzle-burst" aria-hidden="true">
+          <span class="special-burst-piece piece-1 train-yamanote"></span>
+          <span class="special-burst-piece piece-2 train-keikyu"></span>
+          <span class="special-burst-piece piece-3 train-romancecar"></span>
+          <span class="special-burst-piece piece-4 train-shimakaze"></span>
+          <span class="special-burst-piece piece-5 train-hayabusa"></span>
+          <span class="special-burst-piece piece-6 train-komachi"></span>
+        </div>
+        <div class="special-train-route" aria-hidden="true">
+          <div class="special-train-track"></div>
+          <div class="special-train-run">
+            <span class="mini-train-car mini-train-romancecar"></span>
+            <span class="mini-train-car mini-train-yamanote"></span>
+            <span class="mini-train-car mini-train-keikyu"></span>
+            <span class="mini-train-car mini-train-shimakaze"></span>
+            <span class="mini-train-car mini-train-hayabusa"></span>
+            <span class="mini-train-car mini-train-komachi"></span>
+          </div>
+        </div>
+      </div>
+      <button id="close-special-train" class="special-train-close" type="button">とじる</button>
+    </div>
+
     <!-- Particle canvas for celebration -->
     <canvas id="particle-canvas" class="particle-canvas"></canvas>
   </div>
-  <script type="module" src="/src/main.js?v=26"></script>
+  <script type="module" src="/src/main.js?v=27"></script>
 </body>
 
 </html>

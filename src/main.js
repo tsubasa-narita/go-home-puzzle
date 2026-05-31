@@ -116,12 +116,28 @@ const countQuizNote = document.getElementById('count-quiz-note');
 const countQuizChoices = document.getElementById('count-quiz-choices');
 const countQuizFeedback = document.getElementById('count-quiz-feedback');
 const countQuizNumberBadge = document.getElementById('count-quiz-number-badge');
+const countQuizRewardTitle = document.getElementById('count-quiz-reward-title');
+const countQuizRewardNote = document.getElementById('count-quiz-reward-note');
+const specialTrainMiniBoard = document.getElementById('special-train-mini-board');
+const specialTrainProgress = document.getElementById('special-train-progress');
 const closeCountQuizBtn = document.getElementById('close-count-quiz');
+const specialTrainComplete = document.getElementById('special-train-complete');
+const closeSpecialTrainBtn = document.getElementById('close-special-train');
 
 let currentCountQuizOptions = [];
 let countQuizAttempts = 0;
 const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
+const SPECIAL_TRAIN_KEY = 'special-train-puzzle-progress';
+const SPECIAL_TRAIN_TOTAL_PIECES = 6;
+const SPECIAL_TRAIN_PIECES = [
+  { id: 'yamanote', name: 'やまのてせん', type: '在来線' },
+  { id: 'keikyu', name: 'けいきゅうせん', type: '在来線' },
+  { id: 'romancecar', name: 'ロマンスカー', type: '特急' },
+  { id: 'shimakaze', name: 'しまかぜ', type: '特急' },
+  { id: 'hayabusa', name: 'はやぶさ', type: '新幹線' },
+  { id: 'komachi', name: 'こまち', type: '新幹線' },
+];
 const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
 const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
 
@@ -677,6 +693,135 @@ function buildCountQuizOptions(quiz) {
   return unique;
 }
 
+function getTodayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function createSpecialTrainProgressFromLegacy() {
+  const legacyAwards = loadCountQuizStamps()
+    .slice(0, SPECIAL_TRAIN_TOTAL_PIECES)
+    .map((stamp) => ({
+      date: stamp.date,
+      puzzleId: stamp.puzzleId,
+      puzzleName: stamp.puzzleName,
+    }));
+  const pieceCount = Math.min(legacyAwards.length, SPECIAL_TRAIN_TOTAL_PIECES);
+
+  return {
+    pieceCount,
+    awards: legacyAwards,
+    completedAt: pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES
+      ? legacyAwards[SPECIAL_TRAIN_TOTAL_PIECES - 1]?.date || getTodayKey()
+      : null,
+  };
+}
+
+function loadSpecialTrainProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SPECIAL_TRAIN_KEY));
+    if (saved && Array.isArray(saved.awards)) {
+      return {
+        pieceCount: Math.min(Number(saved.pieceCount) || 0, SPECIAL_TRAIN_TOTAL_PIECES),
+        awards: saved.awards,
+        completedAt: saved.completedAt || null,
+      };
+    }
+  } catch {
+    // Fall back to legacy count-quiz history below.
+  }
+
+  const progress = createSpecialTrainProgressFromLegacy();
+  saveSpecialTrainProgress(progress);
+  return progress;
+}
+
+function saveSpecialTrainProgress(progress) {
+  localStorage.setItem(SPECIAL_TRAIN_KEY, JSON.stringify(progress));
+}
+
+function awardSpecialTrainPiece() {
+  const progress = loadSpecialTrainProgress();
+  const today = getTodayKey();
+  const exists = progress.awards.some((award) =>
+    award.date === today && award.puzzleId === currentPuzzle.id
+  );
+
+  if (exists) {
+    return {
+      awarded: false,
+      pieceCount: progress.pieceCount,
+      pieceIndex: progress.pieceCount - 1,
+      completedNow: false,
+      isComplete: progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES,
+    };
+  }
+
+  progress.awards.push({
+    date: today,
+    puzzleId: currentPuzzle.id,
+    puzzleName: currentPuzzle.name,
+  });
+
+  const previousCount = progress.pieceCount;
+  if (progress.pieceCount < SPECIAL_TRAIN_TOTAL_PIECES) {
+    progress.pieceCount += 1;
+  }
+
+  const completedNow = previousCount < SPECIAL_TRAIN_TOTAL_PIECES &&
+    progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES;
+  if (completedNow) {
+    progress.completedAt = today;
+  }
+
+  saveSpecialTrainProgress(progress);
+  return {
+    awarded: true,
+    pieceCount: progress.pieceCount,
+    pieceIndex: Math.max(0, progress.pieceCount - 1),
+    completedNow,
+    isComplete: progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES,
+  };
+}
+
+function renderSpecialTrainMiniBoard(pieceCount, highlightIndex = -1) {
+  if (!specialTrainMiniBoard || !specialTrainProgress) return;
+
+  specialTrainMiniBoard.innerHTML = '';
+  for (let i = 0; i < SPECIAL_TRAIN_TOTAL_PIECES; i++) {
+    const train = SPECIAL_TRAIN_PIECES[i];
+    const piece = document.createElement('span');
+    piece.className = `special-train-mini-piece piece-${i + 1} train-${train.id}`;
+    piece.title = `${train.type}: ${train.name}`;
+    if (i < pieceCount) {
+      piece.classList.add('earned');
+    }
+    if (i === highlightIndex) {
+      piece.classList.add('new-piece');
+    }
+    const label = document.createElement('span');
+    label.className = 'special-train-piece-label';
+    label.textContent = train.name;
+    piece.appendChild(label);
+    specialTrainMiniBoard.appendChild(piece);
+  }
+
+  specialTrainProgress.textContent = `${pieceCount} / ${SPECIAL_TRAIN_TOTAL_PIECES}`;
+}
+
+function showSpecialTrainComplete() {
+  specialTrainComplete.classList.remove('hidden');
+  specialTrainComplete.classList.remove('show');
+  requestAnimationFrame(() => {
+    specialTrainComplete.classList.add('show');
+  });
+  startCelebration({ particleCount: 360, spawnLimit: 520, durationMs: 10000 });
+}
+
+function closeSpecialTrainComplete() {
+  specialTrainComplete.classList.add('hidden');
+  specialTrainComplete.classList.remove('show');
+}
+
 function closeCountQuizModal() {
   countQuizModal.classList.add('hidden');
   countQuizContent.classList.remove('success');
@@ -685,6 +830,8 @@ function closeCountQuizModal() {
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
   countQuizNumberBadge.textContent = '?';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃの ピースを ゲット！';
+  countQuizRewardNote.textContent = 'ぜんぶ あつめると でんしゃが はしるよ';
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
   countQuizAttempts = 0;
@@ -705,6 +852,7 @@ function showCountQuizModal() {
   if (!shouldShowCountQuiz()) return;
 
   const quiz = currentPuzzle.countQuiz;
+  const specialTrainProgressData = loadSpecialTrainProgress();
   countQuizAttempts = 0;
   currentCountQuizOptions = buildCountQuizOptions(quiz);
   countQuizContent.classList.remove('success');
@@ -713,7 +861,10 @@ function showCountQuizModal() {
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
-  countQuizNumberBadge.textContent = String(quiz.answer);
+  countQuizNumberBadge.textContent = '?';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃの ピースを ゲット！';
+  countQuizRewardNote.textContent = 'ぜんぶ あつめると でんしゃが はしるよ';
+  renderSpecialTrainMiniBoard(specialTrainProgressData.pieceCount);
   closeCountQuizBtn.textContent = COUNT_QUIZ_CLOSE_LABEL;
   countQuizChoices.innerHTML = '';
 
@@ -747,14 +898,37 @@ function answerCountQuiz(choice, selectedButton) {
       button.classList.toggle('correct', value === answer);
     });
 
+    const trainReward = awardSpecialTrainPiece();
     awardCountQuizStamp();
     countQuizContent.classList.add('success');
-    countQuizNumberBadge.textContent = String(answer);
+    countQuizNumberBadge.textContent = '+1';
     countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
-    messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
+    renderSpecialTrainMiniBoard(trainReward.pieceCount, trainReward.pieceIndex);
+
+    if (trainReward.completedNow) {
+      countQuizRewardTitle.textContent = 'さいごのピース！ でんしゃが かんせい！';
+      countQuizRewardNote.textContent = `${SPECIAL_TRAIN_PIECES[trainReward.pieceIndex].name}で ぜんぶ そろったよ`;
+      messageText.innerHTML = 'せいかい！<br>スペシャルでんしゃ かんせい！🚄';
+    } else if (trainReward.isComplete) {
+      countQuizRewardTitle.textContent = 'スペシャルでんしゃは かんせいしているよ！';
+      countQuizRewardNote.textContent = 'また すうじゲームで あそんでね';
+      messageText.innerHTML = 'せいかい！<br>スペシャルでんしゃは かんせいずみ！🚄';
+    } else {
+      countQuizRewardTitle.textContent = `${SPECIAL_TRAIN_PIECES[trainReward.pieceIndex].name}の ピースを ゲット！`;
+      countQuizRewardNote.textContent = `あと ${SPECIAL_TRAIN_TOTAL_PIECES - trainReward.pieceCount}ピースで かんせい！`;
+      messageText.innerHTML = 'せいかい！<br>でんしゃパズルの ピース ゲット！🧩';
+    }
+
     closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
-    startCelebration({ particleCount: 320, spawnLimit: 420, durationMs: 11000 });
+    startCelebration({ particleCount: trainReward.completedNow ? 180 : 90, spawnLimit: trainReward.completedNow ? 260 : 140, durationMs: 3600 });
+
+    if (trainReward.completedNow) {
+      setTimeout(() => {
+        closeCountQuizModal();
+        showSpecialTrainComplete();
+      }, 1350);
+    }
     return;
   }
 
@@ -1182,6 +1356,10 @@ function setupEventListeners() {
 
   countQuizBackdrop.addEventListener('click', () => {
     closeCountQuizModal();
+  });
+
+  closeSpecialTrainBtn.addEventListener('click', () => {
+    closeSpecialTrainComplete();
   });
 }
 
@@ -2078,6 +2256,7 @@ function getStreak() {
 function buildStampGrid() {
   const stamps = loadStamps();
   const countQuizStamps = loadCountQuizStamps();
+  const specialTrainProgressData = loadSpecialTrainProgress();
   const streakEl = document.getElementById('stamp-streak');
   const gridEl = document.getElementById('stamp-grid');
 
@@ -2095,7 +2274,7 @@ function buildStampGrid() {
   }
 
   if (countQuizStamps.length > 0) {
-    streakEl.textContent += ` / 123 ${countQuizStamps.length}こ`;
+    streakEl.textContent += ` / 🧩 ${specialTrainProgressData.pieceCount}/${SPECIAL_TRAIN_TOTAL_PIECES}`;
   }
 
   // Grid
@@ -2131,8 +2310,8 @@ function buildStampGrid() {
     if (hasSpecial) {
       const badge = document.createElement('span');
       badge.className = 'stamp-special-badge';
-      badge.textContent = '123';
-      badge.title = 'すうじはかせ';
+      badge.textContent = '🧩';
+      badge.title = 'でんしゃパズルのピース';
       item.appendChild(badge);
     }
 
