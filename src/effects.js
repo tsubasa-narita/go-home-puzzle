@@ -72,6 +72,72 @@ export function playGoalSound() {
     }
 }
 
+/**
+ * Six-second train pass: low rail rumble plus a left-to-right air rush.
+ */
+export function playTrainPassSound() {
+    if (!isSoundEnabled()) return;
+
+    try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const duration = 5.9;
+        const output = ctx.createGain();
+        const panner = typeof ctx.createStereoPanner === 'function'
+            ? ctx.createStereoPanner()
+            : null;
+
+        output.gain.setValueAtTime(0.0001, now);
+        output.gain.exponentialRampToValueAtTime(0.09, now + 0.7);
+        output.gain.linearRampToValueAtTime(0.2, now + 2.9);
+        output.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        if (panner) {
+            output.connect(panner);
+            panner.connect(ctx.destination);
+            panner.pan.setValueAtTime(-1, now);
+            panner.pan.linearRampToValueAtTime(1, now + 5.35);
+        } else {
+            output.connect(ctx.destination);
+        }
+
+        const noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * duration), ctx.sampleRate);
+        const noiseData = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < noiseData.length; i++) {
+            noiseData[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = ctx.createBufferSource();
+        const airFilter = ctx.createBiquadFilter();
+        noise.buffer = noiseBuffer;
+        airFilter.type = 'bandpass';
+        airFilter.Q.value = 0.7;
+        airFilter.frequency.setValueAtTime(190, now);
+        airFilter.frequency.exponentialRampToValueAtTime(1050, now + 3);
+        airFilter.frequency.exponentialRampToValueAtTime(240, now + duration);
+        noise.connect(airFilter);
+        airFilter.connect(output);
+        noise.start(now);
+        noise.stop(now + duration);
+
+        [43, 57].forEach((frequency, index) => {
+            const rumble = ctx.createOscillator();
+            const rumbleGain = ctx.createGain();
+            rumble.type = index === 0 ? 'sawtooth' : 'triangle';
+            rumble.frequency.setValueAtTime(frequency, now);
+            rumble.frequency.linearRampToValueAtTime(frequency + 12, now + 3);
+            rumble.frequency.linearRampToValueAtTime(frequency - 4, now + duration);
+            rumbleGain.gain.setValueAtTime(index === 0 ? 0.16 : 0.08, now);
+            rumble.connect(rumbleGain);
+            rumbleGain.connect(output);
+            rumble.start(now);
+            rumble.stop(now + duration);
+        });
+    } catch (e) {
+        console.warn('Audio error:', e);
+    }
+}
+
 function isSoundEnabled() {
     const toggle = document.getElementById('sound-toggle');
     return toggle ? toggle.checked : true;

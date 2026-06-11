@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css';
+import './style.css?v=31';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, startCelebration, animateButtonPress } from './effects.js';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=31';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -120,25 +120,20 @@ const countQuizFeedback = document.getElementById('count-quiz-feedback');
 const countQuizNumberBadge = document.getElementById('count-quiz-number-badge');
 const countQuizRewardTitle = document.getElementById('count-quiz-reward-title');
 const countQuizRewardNote = document.getElementById('count-quiz-reward-note');
-const specialTrainMiniBoard = document.getElementById('special-train-mini-board');
-const specialTrainProgress = document.getElementById('special-train-progress');
 const closeCountQuizBtn = document.getElementById('close-count-quiz');
-const specialTrainComplete = document.getElementById('special-train-complete');
-const closeSpecialTrainBtn = document.getElementById('close-special-train');
+const specialTrainRunner = document.getElementById('special-train-runner');
+const specialTrainName = document.getElementById('special-train-name');
+const specialTrainImage = document.getElementById('special-train-image');
 
 let currentCountQuizOptions = [];
 let countQuizAttempts = 0;
+let lastSpecialTrainId = null;
 const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
-const SPECIAL_TRAIN_KEY = 'special-train-puzzle-progress';
-const SPECIAL_TRAIN_TOTAL_PIECES = 6;
-const SPECIAL_TRAIN_PIECES = [
-  { id: 'yamanote', name: 'やまのてせん', type: '在来線', image: 'special_train_yamanote.jpg' },
-  { id: 'keikyu', name: 'けいきゅうせん', type: '在来線', image: 'special_train_keikyu.jpg' },
-  { id: 'romancecar', name: 'ロマンスカー', type: '特急', image: 'special_train_romancecar.jpg' },
-  { id: 'shimakaze', name: 'しまかぜ', type: '特急', image: 'special_train_shimakaze.jpg' },
-  { id: 'hayabusa', name: 'はやぶさ', type: '新幹線', image: 'special_train_hayabusa.jpg' },
-  { id: 'komachi', name: 'こまち', type: '新幹線', image: 'special_train_komachi.jpg' },
+const SPECIAL_TRAINS = [
+  { id: 'yamanote', name: 'E235けい やまのてせん', image: 'reward_train_yamanote.png' },
+  { id: 'romancecar', name: 'ロマンスカー GSE', image: 'reward_train_romancecar.png' },
+  { id: 'hayabusa', name: 'E5けい はやぶさ', image: 'reward_train_hayabusa.png' },
 ];
 const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
 const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
@@ -170,7 +165,6 @@ async function init() {
     // Build dynamic steps & step bar
     buildDynamicSteps();
     buildStepBar();
-    hydrateSpecialTrainCompleteImages();
     console.log('[PUZZLE] buildStepBar done, stepButtons:', stepButtons.length);
 
     // Load custom images from IndexedDB
@@ -207,6 +201,7 @@ async function init() {
 
     // Setup event listeners
     setupEventListeners();
+    preloadSpecialTrainImages();
 
     // Auto-start timer if mid-progress and timer is enabled
     if (timerEnabled && currentStep >= 0 && currentStep < STEPS.length - 1) {
@@ -696,168 +691,39 @@ function buildCountQuizOptions(quiz) {
   return unique;
 }
 
-function getTodayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function createSpecialTrainProgressFromLegacy() {
-  const legacyAwards = loadCountQuizStamps()
-    .slice(0, SPECIAL_TRAIN_TOTAL_PIECES)
-    .map((stamp) => ({
-      date: stamp.date,
-      puzzleId: stamp.puzzleId,
-      puzzleName: stamp.puzzleName,
-    }));
-  const pieceCount = Math.min(legacyAwards.length, SPECIAL_TRAIN_TOTAL_PIECES);
-
-  return {
-    pieceCount,
-    awards: legacyAwards,
-    completedAt: pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES
-      ? legacyAwards[SPECIAL_TRAIN_TOTAL_PIECES - 1]?.date || getTodayKey()
-      : null,
-  };
-}
-
-function loadSpecialTrainProgress() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(SPECIAL_TRAIN_KEY));
-    if (saved && Array.isArray(saved.awards)) {
-      return {
-        pieceCount: Math.min(Number(saved.pieceCount) || 0, SPECIAL_TRAIN_TOTAL_PIECES),
-        awards: saved.awards,
-        completedAt: saved.completedAt || null,
-      };
-    }
-  } catch {
-    // Fall back to legacy count-quiz history below.
-  }
-
-  const progress = createSpecialTrainProgressFromLegacy();
-  saveSpecialTrainProgress(progress);
-  return progress;
-}
-
-function saveSpecialTrainProgress(progress) {
-  localStorage.setItem(SPECIAL_TRAIN_KEY, JSON.stringify(progress));
-}
-
-function awardSpecialTrainPiece() {
-  const progress = loadSpecialTrainProgress();
-  const today = getTodayKey();
-  const exists = progress.awards.some((award) =>
-    award.date === today && award.puzzleId === currentPuzzle.id
-  );
-
-  if (exists) {
-    return {
-      awarded: false,
-      pieceCount: progress.pieceCount,
-      pieceIndex: progress.pieceCount - 1,
-      completedNow: false,
-      isComplete: progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES,
-    };
-  }
-
-  progress.awards.push({
-    date: today,
-    puzzleId: currentPuzzle.id,
-    puzzleName: currentPuzzle.name,
-  });
-
-  const previousCount = progress.pieceCount;
-  if (progress.pieceCount < SPECIAL_TRAIN_TOTAL_PIECES) {
-    progress.pieceCount += 1;
-  }
-
-  const completedNow = previousCount < SPECIAL_TRAIN_TOTAL_PIECES &&
-    progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES;
-  if (completedNow) {
-    progress.completedAt = today;
-  }
-
-  saveSpecialTrainProgress(progress);
-  return {
-    awarded: true,
-    pieceCount: progress.pieceCount,
-    pieceIndex: Math.max(0, progress.pieceCount - 1),
-    completedNow,
-    isComplete: progress.pieceCount >= SPECIAL_TRAIN_TOTAL_PIECES,
-  };
-}
-
-function renderSpecialTrainMiniBoard(pieceCount, highlightIndex = -1) {
-  if (!specialTrainMiniBoard || !specialTrainProgress) return;
-
-  specialTrainMiniBoard.innerHTML = '';
-  for (let i = 0; i < SPECIAL_TRAIN_TOTAL_PIECES; i++) {
-    const train = SPECIAL_TRAIN_PIECES[i];
-    const piece = document.createElement('span');
-    piece.className = `special-train-mini-piece piece-${i + 1} train-${train.id}`;
-    piece.title = `${train.type}: ${train.name}`;
-    if (i < pieceCount) {
-      piece.classList.add('earned');
-    }
-    if (i === highlightIndex) {
-      piece.classList.add('new-piece');
-    }
-
-    const image = document.createElement('img');
-    image.className = 'special-train-piece-img';
+function preloadSpecialTrainImages() {
+  SPECIAL_TRAINS.forEach((train) => {
+    const image = new Image();
     image.src = `${BASE}images/${train.image}`;
-    image.alt = '';
-    image.loading = 'lazy';
-
-    const type = document.createElement('span');
-    type.className = 'special-train-piece-type';
-    type.textContent = train.type;
-
-    const label = document.createElement('span');
-    label.className = 'special-train-piece-label';
-    label.textContent = train.name;
-    piece.appendChild(image);
-    piece.appendChild(type);
-    piece.appendChild(label);
-    specialTrainMiniBoard.appendChild(piece);
-  }
-
-  specialTrainProgress.textContent = `${pieceCount} / ${SPECIAL_TRAIN_TOTAL_PIECES}`;
-}
-
-function hydrateSpecialTrainCompleteImages() {
-  document.querySelectorAll('.special-burst-piece').forEach((piece) => {
-    const index = Number(piece.dataset.pieceIndex);
-    const train = SPECIAL_TRAIN_PIECES[index];
-    if (!train || piece.querySelector('img')) return;
-
-    const image = document.createElement('img');
-    image.src = `${BASE}images/${train.image}`;
-    image.alt = '';
-    image.loading = 'lazy';
-    piece.appendChild(image);
-  });
-
-  document.querySelectorAll('.special-run-train').forEach((image) => {
-    const train = SPECIAL_TRAIN_PIECES[Number(image.dataset.pieceIndex)];
-    if (!train) return;
-    image.src = `${BASE}images/${train.image}`;
-    image.alt = '';
   });
 }
 
-function showSpecialTrainComplete() {
-  hydrateSpecialTrainCompleteImages();
-  specialTrainComplete.classList.remove('hidden');
-  specialTrainComplete.classList.remove('show');
-  requestAnimationFrame(() => {
-    specialTrainComplete.classList.add('show');
-  });
-  startCelebration({ particleCount: 360, spawnLimit: 520, durationMs: 10000 });
+function chooseSpecialTrain() {
+  const candidates = SPECIAL_TRAINS.filter((train) => train.id !== lastSpecialTrainId);
+  const train = candidates[Math.floor(Math.random() * candidates.length)];
+  lastSpecialTrainId = train.id;
+  return train;
 }
 
-function closeSpecialTrainComplete() {
-  specialTrainComplete.classList.add('hidden');
-  specialTrainComplete.classList.remove('show');
+function stopSpecialTrainRun() {
+  specialTrainRunner.classList.remove('playing');
+  specialTrainRunner.classList.add('hidden');
+}
+
+function showSpecialTrainRun() {
+  const train = chooseSpecialTrain();
+  stopSpecialTrainRun();
+
+  specialTrainRunner.dataset.train = train.id;
+  specialTrainName.textContent = train.name;
+  specialTrainImage.src = `${BASE}images/${train.image}`;
+  specialTrainImage.alt = train.name;
+  specialTrainRunner.classList.remove('hidden');
+  void specialTrainRunner.offsetWidth;
+  specialTrainRunner.classList.add('playing');
+
+  playTrainPassSound();
+  return train;
 }
 
 function closeCountQuizModal() {
@@ -867,9 +733,9 @@ function closeCountQuizModal() {
   countQuizImage.alt = '';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
-  countQuizNumberBadge.textContent = '?';
-  countQuizRewardTitle.textContent = 'スペシャルでんしゃの ピースを ゲット！';
-  countQuizRewardNote.textContent = 'ぜんぶ あつめると でんしゃが はしるよ';
+  countQuizNumberBadge.textContent = 'GO!';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃが くるよ！';
+  countQuizRewardNote.textContent = 'どの でんしゃかな？';
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
   countQuizAttempts = 0;
@@ -877,7 +743,7 @@ function closeCountQuizModal() {
 }
 
 function shouldShowCountQuiz() {
-  return hasCountQuiz() && !hasEarnedCountQuizStamp(currentPuzzle.id);
+  return hasCountQuiz();
 }
 
 function setCountQuizImage() {
@@ -890,7 +756,6 @@ function showCountQuizModal() {
   if (!shouldShowCountQuiz()) return;
 
   const quiz = currentPuzzle.countQuiz;
-  const specialTrainProgressData = loadSpecialTrainProgress();
   countQuizAttempts = 0;
   currentCountQuizOptions = buildCountQuizOptions(quiz);
   countQuizContent.classList.remove('success');
@@ -899,10 +764,9 @@ function showCountQuizModal() {
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
-  countQuizNumberBadge.textContent = '?';
-  countQuizRewardTitle.textContent = 'スペシャルでんしゃの ピースを ゲット！';
-  countQuizRewardNote.textContent = 'ぜんぶ あつめると でんしゃが はしるよ';
-  renderSpecialTrainMiniBoard(specialTrainProgressData.pieceCount);
+  countQuizNumberBadge.textContent = 'GO!';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃが くるよ！';
+  countQuizRewardNote.textContent = 'どの でんしゃかな？';
   closeCountQuizBtn.textContent = COUNT_QUIZ_CLOSE_LABEL;
   countQuizChoices.innerHTML = '';
 
@@ -936,37 +800,19 @@ function answerCountQuiz(choice, selectedButton) {
       button.classList.toggle('correct', value === answer);
     });
 
-    const trainReward = awardSpecialTrainPiece();
     awardCountQuizStamp();
+    const train = showSpecialTrainRun();
     countQuizContent.classList.add('success');
-    countQuizNumberBadge.textContent = '+1';
+    countQuizContent.scrollTop = 0;
+    countQuizNumberBadge.textContent = 'GO!';
     countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
-    renderSpecialTrainMiniBoard(trainReward.pieceCount, trainReward.pieceIndex);
-
-    if (trainReward.completedNow) {
-      countQuizRewardTitle.textContent = 'さいごのピース！ でんしゃが かんせい！';
-      countQuizRewardNote.textContent = `${SPECIAL_TRAIN_PIECES[trainReward.pieceIndex].name}で ぜんぶ そろったよ`;
-      messageText.innerHTML = 'せいかい！<br>スペシャルでんしゃ かんせい！🚄';
-    } else if (trainReward.isComplete) {
-      countQuizRewardTitle.textContent = 'スペシャルでんしゃは かんせいしているよ！';
-      countQuizRewardNote.textContent = 'また すうじゲームで あそんでね';
-      messageText.innerHTML = 'せいかい！<br>スペシャルでんしゃは かんせいずみ！🚄';
-    } else {
-      countQuizRewardTitle.textContent = `${SPECIAL_TRAIN_PIECES[trainReward.pieceIndex].name}の ピースを ゲット！`;
-      countQuizRewardNote.textContent = `あと ${SPECIAL_TRAIN_TOTAL_PIECES - trainReward.pieceCount}ピースで かんせい！`;
-      messageText.innerHTML = 'せいかい！<br>でんしゃパズルの ピース ゲット！🧩';
-    }
+    countQuizRewardTitle.textContent = `${train.name}が はしるよ！`;
+    countQuizRewardNote.textContent = 'ひだりから みぎへ しゅっぱつしんこう！';
+    messageText.innerHTML = `せいかい！<br>${train.name}が やってきた！`;
 
     closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
-    startCelebration({ particleCount: trainReward.completedNow ? 180 : 90, spawnLimit: trainReward.completedNow ? 260 : 140, durationMs: 3600 });
-
-    if (trainReward.completedNow) {
-      setTimeout(() => {
-        closeCountQuizModal();
-        showSpecialTrainComplete();
-      }, 1350);
-    }
+    startCelebration({ particleCount: 72, spawnLimit: 110, durationMs: 2500 });
     return;
   }
 
@@ -1396,9 +1242,6 @@ function setupEventListeners() {
     closeCountQuizModal();
   });
 
-  closeSpecialTrainBtn.addEventListener('click', () => {
-    closeSpecialTrainComplete();
-  });
 }
 
 // ===========================================
@@ -2294,7 +2137,6 @@ function getStreak() {
 function buildStampGrid() {
   const stamps = loadStamps();
   const countQuizStamps = loadCountQuizStamps();
-  const specialTrainProgressData = loadSpecialTrainProgress();
   const streakEl = document.getElementById('stamp-streak');
   const gridEl = document.getElementById('stamp-grid');
 
@@ -2312,7 +2154,7 @@ function buildStampGrid() {
   }
 
   if (countQuizStamps.length > 0) {
-    streakEl.textContent += ` / 🧩 ${specialTrainProgressData.pieceCount}/${SPECIAL_TRAIN_TOTAL_PIECES}`;
+    streakEl.textContent += ` / すうじゲーム ${countQuizStamps.length}かい せいかい`;
   }
 
   // Grid
@@ -2348,8 +2190,8 @@ function buildStampGrid() {
     if (hasSpecial) {
       const badge = document.createElement('span');
       badge.className = 'stamp-special-badge';
-      badge.textContent = '🧩';
-      badge.title = 'でんしゃパズルのピース';
+      badge.textContent = '🚆';
+      badge.title = 'すうじゲーム せいかい';
       item.appendChild(badge);
     }
 

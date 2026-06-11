@@ -146,54 +146,45 @@
         <p id="count-quiz-feedback" class="count-quiz-feedback"></p>
         <div class="count-quiz-reward" role="status" aria-live="polite">
           <div class="count-quiz-number-badge">
-            <span id="count-quiz-number-badge">?</span>
-            <small>ピース</small>
+            <span id="count-quiz-number-badge">GO!</span>
           </div>
-          <p id="count-quiz-reward-title" class="count-quiz-reward-title">スペシャルでんしゃの ピースを ゲット！</p>
-          <p id="count-quiz-reward-note" class="count-quiz-reward-note">ぜんぶ あつめると でんしゃが はしるよ</p>
-          <div id="special-train-mini-board" class="special-train-mini-board" aria-hidden="true"></div>
-          <p id="special-train-progress" class="special-train-progress">0 / 6</p>
+          <p id="count-quiz-reward-title" class="count-quiz-reward-title">スペシャルでんしゃが くるよ！</p>
+          <p id="count-quiz-reward-note" class="count-quiz-reward-note">どの でんしゃかな？</p>
         </div>
         <button class="modal-close" id="close-count-quiz">あとでみる</button>
       </div>
     </div>
 
-    <!-- Special train completion celebration -->
-    <div id="special-train-complete" class="special-train-complete hidden" role="dialog" aria-modal="true"
-      aria-labelledby="special-train-complete-title">
-      <div class="special-train-sky" aria-hidden="true"></div>
-      <div class="special-train-complete-stage">
-        <div class="special-train-complete-copy">
-          <h2 id="special-train-complete-title">スペシャルでんしゃ かんせい！</h2>
-          <p>しゅっぱつしんこう！</p>
-        </div>
-        <div class="special-train-puzzle-burst" aria-hidden="true">
-          <span class="special-burst-piece piece-1 train-yamanote" data-piece-index="0"></span>
-          <span class="special-burst-piece piece-2 train-keikyu" data-piece-index="1"></span>
-          <span class="special-burst-piece piece-3 train-romancecar" data-piece-index="2"></span>
-          <span class="special-burst-piece piece-4 train-shimakaze" data-piece-index="3"></span>
-          <span class="special-burst-piece piece-5 train-hayabusa" data-piece-index="4"></span>
-          <span class="special-burst-piece piece-6 train-komachi" data-piece-index="5"></span>
-        </div>
-        <div class="special-train-route" aria-hidden="true">
-          <div class="special-train-track"></div>
-          <div class="special-train-run">
-            <img class="special-run-train train-yamanote" data-piece-index="0" src="" alt="" />
-            <img class="special-run-train train-keikyu" data-piece-index="1" src="" alt="" />
-            <img class="special-run-train train-romancecar" data-piece-index="2" src="" alt="" />
-            <img class="special-run-train train-shimakaze" data-piece-index="3" src="" alt="" />
-            <img class="special-run-train train-hayabusa" data-piece-index="4" src="" alt="" />
-            <img class="special-run-train train-komachi" data-piece-index="5" src="" alt="" />
-          </div>
-        </div>
+    <!-- Six-second special train reward -->
+    <div id="special-train-runner" class="special-train-runner hidden" aria-hidden="true">
+      <div class="special-train-atmosphere">
+        <span class="special-train-light light-1"></span>
+        <span class="special-train-light light-2"></span>
+        <span class="special-train-light light-3"></span>
       </div>
-      <button id="close-special-train" class="special-train-close" type="button">とじる</button>
+      <div class="special-train-title">
+        <span class="special-train-kicker">SPECIAL TRAIN</span>
+        <strong id="special-train-name">E5けい はやぶさ</strong>
+      </div>
+      <div class="special-train-speed-lines" aria-hidden="true"></div>
+      <div class="special-train-scene">
+        <div class="special-train-signal" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="special-train-vehicle">
+          <div class="special-train-glow"></div>
+          <img id="special-train-image" src="" alt="" />
+          <div class="special-train-shadow"></div>
+        </div>
+        <div class="special-train-rail-bed" aria-hidden="true"></div>
+        <div class="special-train-foreground" aria-hidden="true"></div>
+      </div>
     </div>
 
     <!-- Particle canvas for celebration -->
     <canvas id="particle-canvas" class="particle-canvas"></canvas>
   </div>
-  <script type="module" src="/src/main.js?v=28"></script>
+  <script type="module" src="/src/main.js?v=31"></script>
 </body>
 
 </html>
