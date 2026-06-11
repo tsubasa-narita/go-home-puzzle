@@ -7,6 +7,8 @@ import { playStepSound, playGoalSound, startCelebration, animateButtonPress } fr
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
+const BASE = import.meta.env.BASE_URL;
+
 // ===========================================
 // State
 // ===========================================
@@ -131,12 +133,12 @@ const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
 const SPECIAL_TRAIN_KEY = 'special-train-puzzle-progress';
 const SPECIAL_TRAIN_TOTAL_PIECES = 6;
 const SPECIAL_TRAIN_PIECES = [
-  { id: 'yamanote', name: 'やまのてせん', type: '在来線' },
-  { id: 'keikyu', name: 'けいきゅうせん', type: '在来線' },
-  { id: 'romancecar', name: 'ロマンスカー', type: '特急' },
-  { id: 'shimakaze', name: 'しまかぜ', type: '特急' },
-  { id: 'hayabusa', name: 'はやぶさ', type: '新幹線' },
-  { id: 'komachi', name: 'こまち', type: '新幹線' },
+  { id: 'yamanote', name: 'やまのてせん', type: '在来線', image: 'special_train_yamanote.jpg' },
+  { id: 'keikyu', name: 'けいきゅうせん', type: '在来線', image: 'special_train_keikyu.jpg' },
+  { id: 'romancecar', name: 'ロマンスカー', type: '特急', image: 'special_train_romancecar.jpg' },
+  { id: 'shimakaze', name: 'しまかぜ', type: '特急', image: 'special_train_shimakaze.jpg' },
+  { id: 'hayabusa', name: 'はやぶさ', type: '新幹線', image: 'special_train_hayabusa.jpg' },
+  { id: 'komachi', name: 'こまち', type: '新幹線', image: 'special_train_komachi.jpg' },
 ];
 const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
 const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
@@ -168,6 +170,7 @@ async function init() {
     // Build dynamic steps & step bar
     buildDynamicSteps();
     buildStepBar();
+    hydrateSpecialTrainCompleteImages();
     console.log('[PUZZLE] buildStepBar done, stepButtons:', stepButtons.length);
 
     // Load custom images from IndexedDB
@@ -798,9 +801,22 @@ function renderSpecialTrainMiniBoard(pieceCount, highlightIndex = -1) {
     if (i === highlightIndex) {
       piece.classList.add('new-piece');
     }
+
+    const image = document.createElement('img');
+    image.className = 'special-train-piece-img';
+    image.src = `${BASE}images/${train.image}`;
+    image.alt = '';
+    image.loading = 'lazy';
+
+    const type = document.createElement('span');
+    type.className = 'special-train-piece-type';
+    type.textContent = train.type;
+
     const label = document.createElement('span');
     label.className = 'special-train-piece-label';
     label.textContent = train.name;
+    piece.appendChild(image);
+    piece.appendChild(type);
     piece.appendChild(label);
     specialTrainMiniBoard.appendChild(piece);
   }
@@ -808,7 +824,29 @@ function renderSpecialTrainMiniBoard(pieceCount, highlightIndex = -1) {
   specialTrainProgress.textContent = `${pieceCount} / ${SPECIAL_TRAIN_TOTAL_PIECES}`;
 }
 
+function hydrateSpecialTrainCompleteImages() {
+  document.querySelectorAll('.special-burst-piece').forEach((piece) => {
+    const index = Number(piece.dataset.pieceIndex);
+    const train = SPECIAL_TRAIN_PIECES[index];
+    if (!train || piece.querySelector('img')) return;
+
+    const image = document.createElement('img');
+    image.src = `${BASE}images/${train.image}`;
+    image.alt = '';
+    image.loading = 'lazy';
+    piece.appendChild(image);
+  });
+
+  document.querySelectorAll('.special-run-train').forEach((image) => {
+    const train = SPECIAL_TRAIN_PIECES[Number(image.dataset.pieceIndex)];
+    if (!train) return;
+    image.src = `${BASE}images/${train.image}`;
+    image.alt = '';
+  });
+}
+
 function showSpecialTrainComplete() {
+  hydrateSpecialTrainCompleteImages();
   specialTrainComplete.classList.remove('hidden');
   specialTrainComplete.classList.remove('show');
   requestAnimationFrame(() => {
