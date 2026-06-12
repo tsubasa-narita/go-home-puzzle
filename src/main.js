@@ -1,11 +1,13 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css';
+import './style.css?v=31';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, startCelebration, animateButtonPress } from './effects.js';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=31';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
+
+const BASE = import.meta.env.BASE_URL;
 
 // ===========================================
 // State
@@ -116,12 +118,23 @@ const countQuizNote = document.getElementById('count-quiz-note');
 const countQuizChoices = document.getElementById('count-quiz-choices');
 const countQuizFeedback = document.getElementById('count-quiz-feedback');
 const countQuizNumberBadge = document.getElementById('count-quiz-number-badge');
+const countQuizRewardTitle = document.getElementById('count-quiz-reward-title');
+const countQuizRewardNote = document.getElementById('count-quiz-reward-note');
 const closeCountQuizBtn = document.getElementById('close-count-quiz');
+const specialTrainRunner = document.getElementById('special-train-runner');
+const specialTrainName = document.getElementById('special-train-name');
+const specialTrainImage = document.getElementById('special-train-image');
 
 let currentCountQuizOptions = [];
 let countQuizAttempts = 0;
+let lastSpecialTrainId = null;
 const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
+const SPECIAL_TRAINS = [
+  { id: 'yamanote', name: 'E235けい やまのてせん', image: 'reward_train_yamanote.png' },
+  { id: 'romancecar', name: 'ロマンスカー GSE', image: 'reward_train_romancecar.png' },
+  { id: 'hayabusa', name: 'E5けい はやぶさ', image: 'reward_train_hayabusa.png' },
+];
 const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
 const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
 
@@ -188,6 +201,7 @@ async function init() {
 
     // Setup event listeners
     setupEventListeners();
+    preloadSpecialTrainImages();
 
     // Auto-start timer if mid-progress and timer is enabled
     if (timerEnabled && currentStep >= 0 && currentStep < STEPS.length - 1) {
@@ -677,6 +691,41 @@ function buildCountQuizOptions(quiz) {
   return unique;
 }
 
+function preloadSpecialTrainImages() {
+  SPECIAL_TRAINS.forEach((train) => {
+    const image = new Image();
+    image.src = `${BASE}images/${train.image}`;
+  });
+}
+
+function chooseSpecialTrain() {
+  const candidates = SPECIAL_TRAINS.filter((train) => train.id !== lastSpecialTrainId);
+  const train = candidates[Math.floor(Math.random() * candidates.length)];
+  lastSpecialTrainId = train.id;
+  return train;
+}
+
+function stopSpecialTrainRun() {
+  specialTrainRunner.classList.remove('playing');
+  specialTrainRunner.classList.add('hidden');
+}
+
+function showSpecialTrainRun() {
+  const train = chooseSpecialTrain();
+  stopSpecialTrainRun();
+
+  specialTrainRunner.dataset.train = train.id;
+  specialTrainName.textContent = train.name;
+  specialTrainImage.src = `${BASE}images/${train.image}`;
+  specialTrainImage.alt = train.name;
+  specialTrainRunner.classList.remove('hidden');
+  void specialTrainRunner.offsetWidth;
+  specialTrainRunner.classList.add('playing');
+
+  playTrainPassSound();
+  return train;
+}
+
 function closeCountQuizModal() {
   countQuizModal.classList.add('hidden');
   countQuizContent.classList.remove('success');
@@ -684,7 +733,9 @@ function closeCountQuizModal() {
   countQuizImage.alt = '';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
-  countQuizNumberBadge.textContent = '?';
+  countQuizNumberBadge.textContent = 'GO!';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃが くるよ！';
+  countQuizRewardNote.textContent = 'どの でんしゃかな？';
   countQuizChoices.innerHTML = '';
   currentCountQuizOptions = [];
   countQuizAttempts = 0;
@@ -692,7 +743,7 @@ function closeCountQuizModal() {
 }
 
 function shouldShowCountQuiz() {
-  return hasCountQuiz() && !hasEarnedCountQuizStamp(currentPuzzle.id);
+  return hasCountQuiz();
 }
 
 function setCountQuizImage() {
@@ -713,7 +764,9 @@ function showCountQuizModal() {
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
   countQuizFeedback.textContent = '';
   countQuizFeedback.className = 'count-quiz-feedback';
-  countQuizNumberBadge.textContent = String(quiz.answer);
+  countQuizNumberBadge.textContent = 'GO!';
+  countQuizRewardTitle.textContent = 'スペシャルでんしゃが くるよ！';
+  countQuizRewardNote.textContent = 'どの でんしゃかな？';
   closeCountQuizBtn.textContent = COUNT_QUIZ_CLOSE_LABEL;
   countQuizChoices.innerHTML = '';
 
@@ -748,13 +801,18 @@ function answerCountQuiz(choice, selectedButton) {
     });
 
     awardCountQuizStamp();
+    const train = showSpecialTrainRun();
     countQuizContent.classList.add('success');
-    countQuizNumberBadge.textContent = String(answer);
+    countQuizContent.scrollTop = 0;
+    countQuizNumberBadge.textContent = 'GO!';
     countQuizFeedback.textContent = quiz.success || `せいかい！ ${answer}だい いたね！`;
     countQuizFeedback.className = 'count-quiz-feedback success';
-    messageText.innerHTML = 'せいかい！<br>すうじはかせ バッジ ゲット！🏅';
+    countQuizRewardTitle.textContent = `${train.name}が はしるよ！`;
+    countQuizRewardNote.textContent = 'ひだりから みぎへ しゅっぱつしんこう！';
+    messageText.innerHTML = `せいかい！<br>${train.name}が やってきた！`;
+
     closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
-    startCelebration({ particleCount: 320, spawnLimit: 420, durationMs: 11000 });
+    startCelebration({ particleCount: 72, spawnLimit: 110, durationMs: 2500 });
     return;
   }
 
@@ -1183,6 +1241,7 @@ function setupEventListeners() {
   countQuizBackdrop.addEventListener('click', () => {
     closeCountQuizModal();
   });
+
 }
 
 // ===========================================
@@ -2095,7 +2154,7 @@ function buildStampGrid() {
   }
 
   if (countQuizStamps.length > 0) {
-    streakEl.textContent += ` / 123 ${countQuizStamps.length}こ`;
+    streakEl.textContent += ` / すうじゲーム ${countQuizStamps.length}かい せいかい`;
   }
 
   // Grid
@@ -2131,8 +2190,8 @@ function buildStampGrid() {
     if (hasSpecial) {
       const badge = document.createElement('span');
       badge.className = 'stamp-special-badge';
-      badge.textContent = '123';
-      badge.title = 'すうじはかせ';
+      badge.textContent = '🚆';
+      badge.title = 'すうじゲーム せいかい';
       item.appendChild(badge);
     }
 
