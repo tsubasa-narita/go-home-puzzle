@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css?v=31';
+import './style.css?v=32';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=31';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=32';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -132,8 +132,15 @@ const SELECTED_PUZZLES_KEY = 'selected-puzzle-history';
 const QUIZ_ONLY_PICKER_KEY = 'quiz-only-image-picker';
 const SPECIAL_TRAINS = [
   { id: 'yamanote', name: 'E235けい やまのてせん', image: 'reward_train_yamanote.png' },
+  { id: 'yokosuka', name: 'E235けい1000ばんだい よこすかせん', image: 'reward_train_yokosuka.png' },
+  { id: 'saikyo', name: 'E233けい7000ばんだい さいきょうせん', image: 'reward_train_saikyo.png' },
+  { id: 'shonan-shinjuku', name: 'E233けい3000ばんだい しょうなんしんじゅくライン', image: 'reward_train_shonan_shinjuku.png' },
+  { id: 'narita-express', name: 'E259けい なりたエクスプレス', image: 'reward_train_narita_express.png' },
   { id: 'romancecar', name: 'ロマンスカー GSE', image: 'reward_train_romancecar.png' },
+  { id: 'komachi', name: 'E6けい こまち', image: 'reward_train_komachi.png' },
   { id: 'hayabusa', name: 'E5けい はやぶさ', image: 'reward_train_hayabusa.png' },
+  { id: 'nozomi', name: 'N700S のぞみ', image: 'reward_train_nozomi.png' },
+  { id: 'nanbu', name: 'E233けい8000ばんだい なんぶせん', image: 'reward_train_nanbu.png' },
 ];
 const COUNT_QUIZ_CLOSE_LABEL = 'あとでみる';
 const COUNT_QUIZ_DONE_LABEL = 'できた！ とじる';
