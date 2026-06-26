@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css?v=32';
+import './style.css?v=33';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=32';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=33';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -1249,6 +1249,21 @@ function setupEventListeners() {
     closeCountQuizModal();
   });
 
+  setupCountQuizLongPressGuards();
+}
+
+function setupCountQuizLongPressGuards() {
+  if (countQuizModal.dataset.longPressGuardReady) return;
+  countQuizModal.dataset.longPressGuardReady = '1';
+  countQuizImage.draggable = false;
+
+  const preventLongPressPopup = (event) => {
+    event.preventDefault();
+  };
+
+  countQuizModal.addEventListener('contextmenu', preventLongPressPopup);
+  countQuizModal.addEventListener('selectstart', preventLongPressPopup);
+  countQuizModal.addEventListener('dragstart', preventLongPressPopup);
 }
 
 // ===========================================
