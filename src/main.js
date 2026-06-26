@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css?v=33';
+import './style.css?v=34';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=33';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=34';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -110,7 +110,6 @@ const resetBtn = document.getElementById('reset-btn');
 const resetSelectedFlagsBtn = document.getElementById('reset-selected-flags-btn');
 const modalBackdrop = settingsModal.querySelector('.modal-backdrop');
 const countQuizModal = document.getElementById('count-quiz-modal');
-const countQuizBackdrop = countQuizModal.querySelector('.modal-backdrop');
 const countQuizContent = countQuizModal.querySelector('.count-quiz-content');
 const countQuizImage = document.getElementById('count-quiz-image');
 const countQuizPrompt = document.getElementById('count-quiz-prompt');
@@ -736,6 +735,7 @@ function showSpecialTrainRun() {
 function closeCountQuizModal() {
   countQuizModal.classList.add('hidden');
   countQuizContent.classList.remove('success');
+  countQuizContent.classList.remove('failure');
   countQuizImage.removeAttribute('src');
   countQuizImage.alt = '';
   countQuizFeedback.textContent = '';
@@ -766,6 +766,7 @@ function showCountQuizModal() {
   countQuizAttempts = 0;
   currentCountQuizOptions = buildCountQuizOptions(quiz);
   countQuizContent.classList.remove('success');
+  countQuizContent.classList.remove('failure');
   setCountQuizImage();
   countQuizPrompt.textContent = quiz.prompt || 'でんしゃは なんだい いたかな？';
   countQuizNote.textContent = quiz.note || 'みえている でんしゃを かぞえてね';
@@ -795,6 +796,7 @@ function showCountQuizModal() {
 
 function answerCountQuiz(choice, selectedButton) {
   if (!hasCountQuiz()) return;
+  if (selectedButton.disabled) return;
 
   const quiz = currentPuzzle.countQuiz;
   const answer = quiz.answer;
@@ -823,20 +825,18 @@ function answerCountQuiz(choice, selectedButton) {
     return;
   }
 
-  selectedButton.classList.add('wrong');
-  countQuizAttempts += 1;
-  setTimeout(() => {
-    selectedButton.classList.remove('wrong');
-  }, 650);
+  buttons.forEach((button) => {
+    const value = Number(button.textContent);
+    button.disabled = true;
+    button.classList.toggle('wrong', button === selectedButton);
+    button.classList.toggle('missed-correct', value === answer);
+  });
 
-  if (countQuizAttempts === 1) {
-    countQuizFeedback.textContent = quiz.hint || 'おしい！ もういちど かぞえてみよう';
-  } else if (countQuizAttempts === 2) {
-    countQuizFeedback.textContent = `こたえは ${answer} だよ。もういちど おしてみよう！`;
-  } else {
-    countQuizFeedback.textContent = `いっしょに かぞえよう。${answer} を おしてね！`;
-  }
+  countQuizContent.classList.add('failure');
+  countQuizContent.scrollTop = 0;
+  countQuizFeedback.textContent = `ざんねん！こたえは ${answer} だよ`;
   countQuizFeedback.className = 'count-quiz-feedback error';
+  closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
 }
 
 // ===========================================
@@ -1242,10 +1242,6 @@ function setupEventListeners() {
   });
 
   closeCountQuizBtn.addEventListener('click', () => {
-    closeCountQuizModal();
-  });
-
-  countQuizBackdrop.addEventListener('click', () => {
     closeCountQuizModal();
   });
 
