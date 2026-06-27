@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css?v=34';
+import './style.css?v=35';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=34';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=35';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -714,6 +714,8 @@ function chooseSpecialTrain() {
 function stopSpecialTrainRun() {
   specialTrainRunner.classList.remove('playing');
   specialTrainRunner.classList.add('hidden');
+  specialTrainImage.removeAttribute('src');
+  specialTrainImage.alt = '';
 }
 
 function showSpecialTrainRun() {
@@ -730,6 +732,18 @@ function showSpecialTrainRun() {
 
   playTrainPassSound();
   return train;
+}
+
+function showWrongMarkRun() {
+  stopSpecialTrainRun();
+
+  specialTrainRunner.dataset.train = 'wrong';
+  specialTrainName.textContent = 'ざんねん！';
+  specialTrainImage.removeAttribute('src');
+  specialTrainImage.alt = '';
+  specialTrainRunner.classList.remove('hidden');
+  void specialTrainRunner.offsetWidth;
+  specialTrainRunner.classList.add('playing');
 }
 
 function closeCountQuizModal() {
@@ -834,6 +848,7 @@ function answerCountQuiz(choice, selectedButton) {
 
   countQuizContent.classList.add('failure');
   countQuizContent.scrollTop = 0;
+  showWrongMarkRun();
   countQuizFeedback.textContent = `ざんねん！こたえは ${answer} だよ`;
   countQuizFeedback.className = 'count-quiz-feedback error';
   closeCountQuizBtn.textContent = COUNT_QUIZ_DONE_LABEL;
