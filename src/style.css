@@ -1069,7 +1069,12 @@ details.setting-section[open]>.setting-section-label::after {
 .count-quiz-content {
   max-width: 430px;
   position: relative;
-  overflow: hidden;
+  max-height: min(92dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--space-md) + env(safe-area-inset-bottom));
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
@@ -1080,6 +1085,15 @@ details.setting-section[open]>.setting-section-label::after {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.count-quiz-content .modal-close {
+  position: sticky;
+  bottom: max(var(--space-xs), env(safe-area-inset-bottom));
+  z-index: 20;
+  align-self: center;
+  min-width: min(100%, 180px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 
 .count-quiz-content.success {
@@ -2423,6 +2437,38 @@ details.setting-section[open]>.setting-section-label::after {
     0 5px 0 rgba(183, 28, 28, 0.55),
     0 0 24px rgba(255, 255, 255, 0.86);
   box-shadow:
+    0 18px 24px rgba(183, 28, 28, 0.34),
+    0 0 0 8px rgba(255, 205, 210, 0.58);
+}
+
+.special-train-runner[data-train='wrong'] .special-train-vehicle::before {
+  --wrong-mark-stroke: clamp(18px, 4.8vw, 40px);
+  content: '';
+  display: block;
+  place-items: normal;
+  background:
+    linear-gradient(45deg,
+      transparent calc(50% - var(--wrong-mark-stroke) / 2),
+      #FFFFFF calc(50% - var(--wrong-mark-stroke) / 2),
+      #FFFFFF calc(50% + var(--wrong-mark-stroke) / 2),
+      transparent calc(50% + var(--wrong-mark-stroke) / 2)),
+    linear-gradient(-45deg,
+      transparent calc(50% - var(--wrong-mark-stroke) / 2),
+      #FFFFFF calc(50% - var(--wrong-mark-stroke) / 2),
+      #FFFFFF calc(50% + var(--wrong-mark-stroke) / 2),
+      transparent calc(50% + var(--wrong-mark-stroke) / 2)),
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.55) 0 9%, transparent 10%),
+    linear-gradient(135deg, #FFEBEE, #EF5350 56%, #C62828);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 62% 62%, 62% 62%, 100% 100%, 100% 100%;
+  color: transparent;
+  font-size: 0;
+  line-height: 1;
+  text-shadow: none;
+  box-shadow:
+    inset 0 -10px 20px rgba(183, 28, 28, 0.26),
+    inset 0 8px 18px rgba(255, 255, 255, 0.34),
     0 18px 24px rgba(183, 28, 28, 0.34),
     0 0 0 8px rgba(255, 205, 210, 0.58);
 }
