@@ -1,9 +1,9 @@
 /**
  * だ〜れだ？パズルラリー - メインアプリケーション
  */
-import './style.css?v=35';
+import './style.css?v=37';
 import { PUZZLES, getTodayPuzzle, saveProgress, loadProgress, resetProgress, getAllPuzzlesWithCustom } from './puzzleData.js';
-import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=35';
+import { playStepSound, playGoalSound, playTrainPassSound, startCelebration, animateButtonPress } from './effects.js?v=37';
 import { ALL_STEPS, DEFAULT_WEEKDAY, DEFAULT_HOLIDAY, getStepDefs, calcRevealCounts, calcRevealPercents } from './stepRegistry.js';
 import { saveImage, deleteImage, getImageCount, resizeImage, MAX_IMAGES } from './imageStore.js';
 
@@ -747,6 +747,7 @@ function showWrongMarkRun() {
 }
 
 function closeCountQuizModal() {
+  stopSpecialTrainRun();
   countQuizModal.classList.add('hidden');
   countQuizContent.classList.remove('success');
   countQuizContent.classList.remove('failure');
